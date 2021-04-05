@@ -19,6 +19,8 @@ action_cooldown = 0
 action_wait_time = 90
 attack = False
 potions = False
+mana_potion = False
+mana_potion_effect = 5
 potion_effect = 15
 clicked = False
 game_over = 0
@@ -27,30 +29,37 @@ equipment_state = 0
 ring_of_health_active = False
 raptor_claw_active = False
 four_leaf_clover_active = False
+feather_active = False
+leather_active = False
 #fonts
 font = pygame.font.SysFont('Minecraft', 26)
+potion_font = pygame.font.SysFont('Minecraft', 20)
 #define colors
 red = (255,0,0)
 green = (0,255,0)
 blue = (0,0,255)
+yellow = (255,255,0)
 #load assets#
 background_img = pygame.image.load('Images/Background/Background.png')
 background_img = pygame.transform.scale(background_img,(800,400))
 panel_img = pygame.image.load('Images/Icon/Panel.png')
 sword_img = pygame.image.load('Images/Icon/SwordButton.png')
 potion_img = pygame.image.load('Images/Icon/PotionButton.png')
+mana_potion_img = pygame.image.load('Images/Icon/PotionButtonMana.png')
 victory_img = pygame.image.load('Images/Icon/Victory.png')
 defeat_img = pygame.image.load('Images/Icon/Defeat.png')
 reset_img = pygame.image.load('Images/Icon/Reset.png')
 statbutton_img = pygame.image.load('Images/Icon/StatButton.png')
 fireballskill_img = pygame.image.load('Images/Icon/Fireball/Fireballskill.png')
+healskill_img = pygame.image.load('Images/Icon/Heal/HealButton.png')
 ring_of_health_img = pygame.image.load('Images/Icon/Relics/Relic0.png')
 ring_of_health_img = pygame.transform.scale(ring_of_health_img,(100,100))
 raptor_claw_img = pygame.image.load('Images/Icon/Relics/Relic1.png')
 raptor_claw_img = pygame.transform.scale(raptor_claw_img ,(100,100))
 four_leaf_clover_img = pygame.image.load('Images/Icon/Relics/Relic2.png')
-four_leaf_clover_img = pygame.transform.scale(four_leaf_clover_img ,(100,100))
-
+four_leaf_clover_img = pygame.transform.scale(four_leaf_clover_img ,(70,70))
+feather_img = pygame.image.load('Images/Icon/Relics/Relic3.png')
+feather_img = pygame.transform.scale(feather_img ,(70,70))
 #functions#
 # class draw_fireball():
 # 	def __init__(self, x, y, name):
@@ -98,20 +107,24 @@ def draw_panel():
 	#show knight stats
 	draw_text(f'HP: {hero.hp}', font, red, 20, screen_height - bottom_panel + 20)
 	draw_text(f'MP: {hero.mana}', font, red, 160, screen_height - bottom_panel + 20)	
-	draw_text(f'EXP: {hero.experience}', font, red, 90, screen_height - bottom_panel + 70)
+	draw_text(f'EXP: {hero.experience}', font, red, 90-35, screen_height - bottom_panel + 70)
+	draw_text(f'STAT: {hero.statpoints}', font, red, 180-35, screen_height - bottom_panel + 70)
 	draw_text(f'LVL: {hero.level}', font, red, 320, screen_height - bottom_panel + 20)	
 	draw_text(f'STR: {hero.strength}', font, red, 320, screen_height - bottom_panel + 40)	
 	draw_text(f'LUC: {hero.luck}', font, red, 320, screen_height - bottom_panel + 60)	
 	draw_text(f'ACC: {hero.accuracy}', font, red, 320, screen_height - bottom_panel + 80)	
 	draw_text(f'EVA: {hero.evasion}', font, red, 320, screen_height - bottom_panel + 100)
 	draw_text(f'DEF: {hero.defense}', font, red, 320, screen_height - bottom_panel + 120)
+
 	#draw relics
 	if ring_of_health_active == True:
 		screen.blit(ring_of_health_img,(700,0))
 	if raptor_claw_active == True:
 		screen.blit(raptor_claw_img,(620,0))
 	if four_leaf_clover_active == True:
-		screen.blit(four_leaf_clover_img,(540,0))
+		screen.blit(four_leaf_clover_img,(540+20,10))
+	if feather_active == True:
+		screen.blit(feather_img,(460+30,10))
 	#show slime stats	
 	for count, i in enumerate(slime_list):
 		draw_text(f'{i.name} HP: {i.hp}', font, red, 550, (screen_height - bottom_panel + 20) + count * 60)	
@@ -119,7 +132,7 @@ def draw_panel():
 
 #fighter class
 class fighter():
-	def __init__(self, x, y, name, max_hp, strength, potions, level, experience, luck, evasion, accuracy, statpoints, max_mana, defense):
+	def __init__(self, x, y, name, max_hp, strength, potions, level, experience, luck, evasion, accuracy, statpoints, max_mana, defense, mana_potion):
 		#global variables
 		global equipment_state
 		self.name = name
@@ -138,12 +151,14 @@ class fighter():
 		self.start_evasion = evasion
 		self.start_strength = strength
 		self.start_defense = defense
+		self.start_mana_potion = mana_potion
 		self.strength = strength
 		self.luck = luck
 		self.evasion = evasion
 		self.accuracy = accuracy
 		self.potions = potions
 		self.defense = defense
+		self.mana_potion = mana_potion
 		#experience level and stats
 		self.start_experience = experience
 		self.start_level = level
@@ -409,6 +424,8 @@ class fighter():
 		global ring_of_health_active
 		global raptor_claw_active
 		global four_leaf_clover_active
+		global feather_active
+		global leather_active
 
 		if self.alive == False:
 			if self.level > 0:
@@ -430,6 +447,17 @@ class fighter():
 					if rollitemactive > 75:
 						four_leaf_clover_active = True
 						hero.luck += 2
+			if self.level > 0:
+				if feather_active == False:
+					rollitemactive = random.randint(0,100)
+					if rollitemactive > 50:
+						feather_active = True
+						hero.evasion += 2
+			if self.level > 0:
+				if leather_active == False:
+					rollitemactive = random.randint(0,100)
+					if rollitemactive > 80:
+						leather_active = True
 
 	#resets
 	def resetdefeat(self):
@@ -445,6 +473,7 @@ class fighter():
 			if start_random_integer -5 < start_random_luck + start_random_evasion + start_random_accuracy + start_random_strength < start_random_integer:
 				break
 		self.potions = self.start_potions
+		self.mana_potion = self.start_mana_potion
 		self.max_hp = self.start_max_hp
 		self.max_mana = self.start_max_mana
 		self.hp = self.max_hp
@@ -463,6 +492,7 @@ class fighter():
 	def resetvictory(self):
 		self.alive = True
 		self.potions = self.potions
+		self.mana_potion = self.mana_potion
 		self.hp = self.hp
 		if self.mana <= self.max_mana - 5:
 			self.mana += 5
@@ -518,10 +548,58 @@ class fighter():
 		#draw fireball img	
 		fireball_draw = draw_fireball(target.rect.centerx, target.rect.y)
 		fireball_img_group.add(fireball_draw)		
-		#set variables to attack animation
+		#set variables to skill animation
 		self.action = 4
 		self.frame_index = 0
 		self.update_time = pygame.time.get_ticks()
+
+	def heal(self):
+		heal_spell_effect = 5 + (hero.max_hp / 2)
+		if hero.max_hp - hero.hp > heal_spell_effect:
+			heal_spell_amount = heal_spell_effect
+		else:
+			heal_spell_amount = hero.max_hp - hero.hp
+		hero.hp += heal_spell_amount
+		hero.mana -= 5
+		damage_text = damagetext(self.rect.centerx -25, self.rect.y + 100, str(heal_spell_amount), green)
+		damage_text_group.add(damage_text)
+		#draw fireball img	
+		heal_draw = draw_heal(self.rect.centerx -25, self.rect.y + 150)
+		heal_img_group.add(heal_draw)		
+		#set variables to skill animation
+		self.action = 4
+		self.frame_index = 0
+		self.update_time = pygame.time.get_ticks()
+
+#draw heal
+class draw_heal(pygame.sprite.Sprite):
+	def __init__(self, x, y):
+		pygame.sprite.Sprite.__init__(self)
+		self.animation_list = []
+		self.frame_index = 0
+		self.update_time = pygame.time.get_ticks()	
+		for i in range(4):
+			img = pygame.image.load(f'Images/Icon/Heal/{i}.png')
+			img = pygame.transform.scale(img, (img.get_width() * 3, img.get_height() * 3))
+			self.animation_list.append(img)
+		self.image = self.animation_list[self.frame_index]
+		self.rect = self.image.get_rect()
+		self.rect.center = (x,y)
+		self.counter = 0
+
+	def update(self):
+		#animation cooldown in milliseconds
+		animation_cooldown = 100
+		#handle animation
+		#update image
+		self.image = self.animation_list[self.frame_index]	
+		#check if enough time has passes since last update
+		if pygame.time.get_ticks() - self.update_time > animation_cooldown:
+			self.update_time = pygame.time.get_ticks()
+			self.frame_index += 1
+		#if animation runs out reset to the start
+		if self.frame_index >= len(self.animation_list):
+			self.kill()
 
 #draw fireball
 class draw_fireball(pygame.sprite.Sprite):
@@ -581,6 +659,19 @@ class manabar():
 		pygame.draw.rect(screen, red, (self.x, self.y, 130, 20))
 		pygame.draw.rect(screen, blue, (self.x, self.y, 130 * ratio, 20))	
 
+#exp class
+class expbar():
+	def __init__(self, x, y, experience):
+		self.x = x
+		self.y = y
+		self.experience = experience
+	def draw(self, experience):
+		self.experience = experience
+		#calculate exp ratio
+		ratio = self.experience / experiencethreshold[-1]
+		pygame.draw.rect(screen, red, (self.x, self.y, 800, 14))
+		pygame.draw.rect(screen, yellow, (self.x, self.y, 800 * ratio, 14))	
+
 #button class
 class button():
 	def __init__(self, surface, x, y, image, size_x, size_y):
@@ -630,6 +721,7 @@ class damagetext(pygame.sprite.Sprite):
 #instances
 damage_text_group = pygame.sprite.Group()
 fireball_img_group = pygame.sprite.Group()
+heal_img_group = pygame.sprite.Group()
 
 #random starting stats
 while True:
@@ -643,28 +735,30 @@ while True:
 
 #hero
 #(self, x, y, name, max_hp, strength, potions, level, experience, luck, evasion, accuracy, statpoints, max_mana)
-hero = fighter(200, 265, 'Hero', 50, start_random_strength, 3, 1, 0, start_random_luck, start_random_evasion, start_random_accuracy, 0, 15, 0)
+hero = fighter(200, 265, 'Hero', 50, start_random_strength, 3, 1, 0, start_random_luck, start_random_evasion, start_random_accuracy, 0, 15, 0, 2)
 
 #slime
-slime1 = fighter(530, 350, 'Slime', 5, 8, 1, 1, 5, 5, 8, 8, 0, 0, 0)
-slime2 = fighter(650, 350, 'Slime', 15, 8, 1, 1, 5, 5, 8, 8, 0, 0, 0)
+slime1 = fighter(530, 350, 'Slime', 5, 8, 1, 1, 5, 5, 8, 8, 0, 0, 0, 0)
+slime2 = fighter(650, 350, 'Slime', 15, 8, 1, 1, 5, 5, 8, 8, 0, 0, 0, 0)
 slime_list = []
 slime_list.append(slime1)
 slime_list.append(slime2)
 
 #button
-potion_button = button(screen, 18, screen_height - bottom_panel + 70, potion_img, 64, 64)
+potion_button = button(screen, 18, screen_height - bottom_panel + 65, potion_img, 32, 32)
+mana_potion_button = button(screen, 18, screen_height - bottom_panel + 100, mana_potion_img, 32, 32)
 restart_button = button(screen, 330, 120, reset_img, 120, 30)
-statbutton_button_str = button(screen, 120, screen_height - bottom_panel + 110, statbutton_img, 24, 24)
-statbutton_button_evasion = button(screen, 160, screen_height - bottom_panel + 110, statbutton_img, 24, 24)
-statbutton_button_accuracy = button(screen, 200, screen_height - bottom_panel + 110, statbutton_img, 24, 24)
-statbutton_button_luck = button(screen, 240, screen_height - bottom_panel + 110, statbutton_img, 24, 24)
+statbutton_button_str = button(screen, 120-60, screen_height - bottom_panel + 110, statbutton_img, 24, 24)
+statbutton_button_evasion = button(screen, 160-60, screen_height - bottom_panel + 110, statbutton_img, 24, 24)
+statbutton_button_accuracy = button(screen, 200-60, screen_height - bottom_panel + 110, statbutton_img, 24, 24)
+statbutton_button_luck = button(screen, 240-60, screen_height - bottom_panel + 110, statbutton_img, 24, 24)
 fireballskill_button = button(screen, 18, 10, fireballskill_img, 64, 64)
-change_to_leather = button(screen, 18+64+18, 10, statbutton_img, 64, 64)
+healskill_button = button(screen, 100, 10, healskill_img, 64, 64)
+change_to_leather = button(screen, 182, 10, statbutton_img, 64, 64)
 
 #cast costs
 fireballcastcost = 5
-
+healcastcost = 5
 #pause states
 UNPAUSE, PAUSE = 0, 1
 state = UNPAUSE
@@ -683,6 +777,7 @@ while run:
 	#healthbar
 	hero_health_bar = healthbar(20, screen_height - bottom_panel + 40, hero.hp, hero.max_hp)
 	hero_mana_bar = manabar(160, screen_height - bottom_panel + 40, hero.mana, hero.max_mana)
+	hero_exp_bar = expbar(0, screen_height - bottom_panel, hero.experience)
 
 	#draw background
 	draw_bg()
@@ -691,6 +786,7 @@ while run:
 	draw_panel()
 	hero_health_bar.draw(hero.hp)
 	hero_mana_bar.draw(hero.mana)
+	hero_exp_bar.draw(hero.experience)
 	slime1_health_bar.draw(slime1.hp)
 	slime2_health_bar.draw(slime2.hp)
 
@@ -723,16 +819,19 @@ while run:
 	#draw fireball
 	fireball_img_group.update()
 	fireball_img_group.draw(screen)
+	#draw heal
+	heal_img_group.update()
+	heal_img_group.draw(screen)
 	#use potion button
-	if potion_button.draw():
-		potions = True
+	potion_button.draw()
+	mana_potion_button.draw()
 
 	#increase stats
 	if hero.statpoints > 0:
-		draw_text(f'STR', font, red, 115, screen_height - bottom_panel + 90)
-		draw_text(f'EVA', font, red, 155, screen_height - bottom_panel + 90)
-		draw_text(f'ACC', font, red, 195, screen_height - bottom_panel + 90)
-		draw_text(f'LUC', font, red, 235, screen_height - bottom_panel + 90)
+		draw_text(f'STR', font, red, 115-60, screen_height - bottom_panel + 90)
+		draw_text(f'EVA', font, red, 155-60, screen_height - bottom_panel + 90)
+		draw_text(f'ACC', font, red, 195-60, screen_height - bottom_panel + 90)
+		draw_text(f'LUC', font, red, 235-60, screen_height - bottom_panel + 90)
 		if statbutton_button_str.draw():
 			hero.statpoints -= 1
 			hero.strength += 1
@@ -747,7 +846,8 @@ while run:
 			hero.evasion += 1
 
 	#show number of potions remaining
-	draw_text(str(hero.potions), font, red, 65, screen_height - bottom_panel + 75)
+	draw_text(str(hero.potions), potion_font, red, 40, screen_height - bottom_panel + 68)
+	draw_text(str(hero.mana_potion), potion_font, red, 40, screen_height - bottom_panel + 103)
 
 	#draw slime
 	for slime in slime_list:
@@ -761,6 +861,27 @@ while run:
 				if current_fighter == 1:
 					action_cooldown += 1
 					if action_cooldown >= action_wait_time:
+
+						#auto potion when it's your turn
+						if hero.potions > 0 and hero.hp < hero.max_hp / 2:
+							#check if potion would heal beyond max health
+							if hero.max_hp - hero.hp > potion_effect:
+								heal_amount = potion_effect
+							else:
+								heal_amount = hero.max_hp - hero.hp
+							hero.hp += heal_amount
+							hero.potions -= 1
+							damage_text = damagetext(hero.rect.centerx - 25, hero.rect.y + 80, str(heal_amount), green)
+							damage_text_group.add(damage_text)
+
+						#auto mana potion when it's your turn
+						if hero.mana_potion > 0 and hero.mana < 10:
+							restore_amount = mana_potion_effect
+							hero.mana += restore_amount
+							hero.mana_potion -= 1
+							damage_text = damagetext(hero.rect.centerx - 25, hero.rect.y + 120, str(restore_amount), blue)
+							damage_text_group.add(damage_text)
+
 						#look for player action
 						#attack
 						if attack == True and target != None:
@@ -770,21 +891,6 @@ while run:
 							target.drop_items()
 							current_fighter += 1
 							action_cooldown = 0
-
-						#potion
-						if potions == True:
-							if hero.potions > 0:
-								#check if potion would heal beyond max health
-								if hero.max_hp - hero.hp > potion_effect:
-									heal_amount = potion_effect
-								else:
-									heal_amount = hero.max_hp - hero.hp
-								hero.hp += heal_amount
-								hero.potions -= 1
-								damage_text = damagetext(hero.rect.centerx - 25, hero.rect.y + 80, str(heal_amount), green)
-								damage_text_group.add(damage_text)
-								current_fighter += 1
-								action_cooldown = 0
 
 						#fireball
 						if hero.mana >= fireballcastcost:
@@ -810,16 +916,24 @@ while run:
 									current_fighter += 1
 									action_cooldown = 0
 
+						#heal
+						if hero.mana >= healcastcost:
+							if healskill_button.draw():
+								hero.heal()
+								current_fighter += 1
+								action_cooldown = 0
+
 						#change equipment
-						if change_to_leather.draw():
-							if equipment_state == 1:
-								equipment_state = 0
-							else:
-								equipment_state += 1
-							if equipment_state == 1:
-								hero.defense = 5
-							elif equipment_state == 0:
-								hero.defense = 0
+						if leather_active == True:
+							if change_to_leather.draw():
+								if equipment_state == 1:
+									equipment_state = 0
+								else:
+									equipment_state += 1
+								if equipment_state == 1:
+									hero.defense = 5
+								elif equipment_state == 0:
+									hero.defense = 0
 
 						#level up
 						for length in range(len(experiencethreshold)):
@@ -828,6 +942,7 @@ while run:
 								nextexperience = experiencethreshold[-1] * 3 # or experiencethreshold[0]
 								experiencethreshold.append(nextexperience)
 								hero.statpoints += 5
+								hero.max_mana += 5
 
 			else:
 				game_over = -1
@@ -889,6 +1004,8 @@ while run:
 					ring_of_health_active = False
 					raptor_claw_active = False
 					four_leaf_clover_active = False
+					feather_active = False
+
 					for slime in slime_list:
 						slime.resetmonsterdefeat()
 					current_fighter = 1
