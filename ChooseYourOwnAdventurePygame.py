@@ -31,6 +31,8 @@ raptor_claw_active = False
 four_leaf_clover_active = False
 feather_active = False
 leather_active = False
+eye_of_vladimir_active = False
+condensed_lightning_active = False
 #fonts
 font = pygame.font.SysFont('Minecraft', 26)
 potion_font = pygame.font.SysFont('Minecraft', 20)
@@ -40,26 +42,30 @@ green = (0,255,0)
 blue = (0,0,255)
 yellow = (255,255,0)
 #load assets#
-background_img = pygame.image.load('Images/Background/Background.png')
+background_img = pygame.image.load('Images/Background/Background.png').convert_alpha()
 background_img = pygame.transform.scale(background_img,(800,400))
-panel_img = pygame.image.load('Images/Icon/Panel.png')
-sword_img = pygame.image.load('Images/Icon/SwordButton.png')
-potion_img = pygame.image.load('Images/Icon/PotionButton.png')
-mana_potion_img = pygame.image.load('Images/Icon/PotionButtonMana.png')
-victory_img = pygame.image.load('Images/Icon/Victory.png')
-defeat_img = pygame.image.load('Images/Icon/Defeat.png')
-reset_img = pygame.image.load('Images/Icon/Reset.png')
-statbutton_img = pygame.image.load('Images/Icon/StatButton.png')
-fireballskill_img = pygame.image.load('Images/Icon/Fireball/Fireballskill.png')
-healskill_img = pygame.image.load('Images/Icon/Heal/HealButton.png')
-ring_of_health_img = pygame.image.load('Images/Icon/Relics/Relic0.png')
+panel_img = pygame.image.load('Images/Icon/Panel.png').convert_alpha()
+sword_img = pygame.image.load('Images/Icon/SwordButton.png').convert_alpha()
+potion_img = pygame.image.load('Images/Icon/PotionButton.png').convert_alpha()
+mana_potion_img = pygame.image.load('Images/Icon/PotionButtonMana.png').convert_alpha()
+victory_img = pygame.image.load('Images/Icon/Victory.png').convert_alpha()
+defeat_img = pygame.image.load('Images/Icon/Defeat.png').convert_alpha()
+reset_img = pygame.image.load('Images/Icon/Reset.png').convert_alpha()
+statbutton_img = pygame.image.load('Images/Icon/StatButton.png').convert_alpha()
+fireballskill_img = pygame.image.load('Images/Icon/Fireball/Fireballskill.png').convert_alpha()
+healskill_img = pygame.image.load('Images/Icon/Heal/HealButton.png').convert_alpha()
+ring_of_health_img = pygame.image.load('Images/Icon/Relics/Relic0.png').convert_alpha()
 ring_of_health_img = pygame.transform.scale(ring_of_health_img,(100,100))
-raptor_claw_img = pygame.image.load('Images/Icon/Relics/Relic1.png')
+raptor_claw_img = pygame.image.load('Images/Icon/Relics/Relic1.png').convert_alpha()
 raptor_claw_img = pygame.transform.scale(raptor_claw_img ,(100,100))
-four_leaf_clover_img = pygame.image.load('Images/Icon/Relics/Relic2.png')
+four_leaf_clover_img = pygame.image.load('Images/Icon/Relics/Relic2.png').convert_alpha()
 four_leaf_clover_img = pygame.transform.scale(four_leaf_clover_img ,(70,70))
-feather_img = pygame.image.load('Images/Icon/Relics/Relic3.png')
+feather_img = pygame.image.load('Images/Icon/Relics/Relic3.png').convert_alpha()
 feather_img = pygame.transform.scale(feather_img ,(70,70))
+eye_of_vladimir_img = pygame.image.load('Images/Icon/Relics/Relic4.png').convert_alpha()
+eye_of_vladimir_img = pygame.transform.scale(eye_of_vladimir_img ,(90,90))
+condensed_lightning_img = pygame.image.load('Images/Icon/Relics/Relic5.png').convert_alpha()
+condensed_lightning_img = pygame.transform.scale(condensed_lightning_img ,(65,65))
 #functions#
 # class draw_fireball():
 # 	def __init__(self, x, y, name):
@@ -125,6 +131,10 @@ def draw_panel():
 		screen.blit(four_leaf_clover_img,(540+20,10))
 	if feather_active == True:
 		screen.blit(feather_img,(460+30,10))
+	if eye_of_vladimir_active == True:
+		screen.blit(eye_of_vladimir_img,(460-60,0))
+	if condensed_lightning_active == True:
+		screen.blit(condensed_lightning_img,(460-130,15))
 	#show slime stats	
 	for count, i in enumerate(slime_list):
 		draw_text(f'{i.name} HP: {i.hp}', font, red, 550, (screen_height - bottom_panel + 20) + count * 60)	
@@ -180,11 +190,11 @@ class fighter():
 		temp_list = []
 		for i in range(4):
 			if self.name == 'Hero':
-				img = pygame.image.load(f'Images/{self.name}/Idle/{i}.png')
+				img = pygame.image.load(f'Images/{self.name}/Idle/{i}.png').convert_alpha()
 				img = pygame.transform.scale(img,(250,250))
 				temp_list.append(img)
 			elif self.name == 'Slime':
-				img = pygame.image.load(f'Images/{self.name}/Idle/{i}.png')
+				img = pygame.image.load(f'Images/{self.name}/Idle/{i}.png').convert_alpha()
 				img = pygame.transform.scale(img,(80,80))
 				temp_list.append(img)				
 		self.animation_list.append(temp_list)
@@ -192,11 +202,11 @@ class fighter():
 		temp_list = []
 		for i in range(5):
 			if self.name == 'Hero':
-				img = pygame.image.load(f'Images/{self.name}/Attack/{i}.png')
+				img = pygame.image.load(f'Images/{self.name}/Attack/{i}.png').convert_alpha()
 				img = pygame.transform.scale(img,(250,250))
 				temp_list.append(img)
 			elif self.name == 'Slime':
-				img = pygame.image.load(f'Images/{self.name}/Attack/{i}.png')
+				img = pygame.image.load(f'Images/{self.name}/Attack/{i}.png').convert_alpha()
 				img = pygame.transform.scale(img,(80,80))
 				temp_list.append(img)	
 		self.animation_list.append(temp_list)
@@ -204,11 +214,11 @@ class fighter():
 		temp_list = []
 		for i in range(3):
 			if self.name == 'Hero':
-				img = pygame.image.load(f'Images/{self.name}/Hurt/{i}.png')
+				img = pygame.image.load(f'Images/{self.name}/Hurt/{i}.png').convert_alpha()
 				img = pygame.transform.scale(img,(250,250))
 				temp_list.append(img)
 			elif self.name == 'Slime':
-				img = pygame.image.load(f'Images/{self.name}/Hurt/{i}.png')
+				img = pygame.image.load(f'Images/{self.name}/Hurt/{i}.png').convert_alpha()
 				img = pygame.transform.scale(img,(80,80))
 				temp_list.append(img)	
 		self.animation_list.append(temp_list)
@@ -216,18 +226,18 @@ class fighter():
 		temp_list = []
 		for i in range(5):
 			if self.name == 'Hero':
-				img = pygame.image.load(f'Images/{self.name}/Death/{i}.png')
+				img = pygame.image.load(f'Images/{self.name}/Death/{i}.png').convert_alpha()
 				img = pygame.transform.scale(img,(250,250))
 				temp_list.append(img)
 			elif self.name == 'Slime':
-				img = pygame.image.load(f'Images/{self.name}/Death/{i}.png')
+				img = pygame.image.load(f'Images/{self.name}/Death/{i}.png').convert_alpha()
 				img = pygame.transform.scale(img,(80,80))
 				temp_list.append(img)	
 		self.animation_list.append(temp_list)
 		#index 4 = skills
 		temp_list = []
 		for i in range(5):
-			img = pygame.image.load(f'Images/Hero/Skill/Fireball/{i}.png')
+			img = pygame.image.load(f'Images/Hero/Skill/Fireball/{i}.png').convert_alpha()
 			img = pygame.transform.scale(img,(250 ,250))
 			temp_list.append(img)
 		self.animation_list.append(temp_list)
@@ -236,11 +246,11 @@ class fighter():
 		temp_list = []
 		for i in range(4):
 			if self.name == 'Hero':
-				img = pygame.image.load(f'Images/Hero/Idle/L{i}.png')
+				img = pygame.image.load(f'Images/Hero/Idle/L{i}.png').convert_alpha()
 				img = pygame.transform.scale(img,(250,250))
 				temp_list.append(img)
 			elif self.name == 'Slime':
-				img = pygame.image.load(f'Images/Slime/Idle/{i}.png')
+				img = pygame.image.load(f'Images/Slime/Idle/{i}.png').convert_alpha()
 				img = pygame.transform.scale(img,(80,80))
 				temp_list.append(img)	
 		self.animation_list_leather.append(temp_list)		
@@ -248,11 +258,11 @@ class fighter():
 		temp_list = []
 		for i in range(5):
 			if self.name == 'Hero':
-				img = pygame.image.load(f'Images/Hero/Attack/L{i}.png')
+				img = pygame.image.load(f'Images/Hero/Attack/L{i}.png').convert_alpha()
 				img = pygame.transform.scale(img,(250,250))
 				temp_list.append(img)
 			elif self.name == 'Slime':
-				img = pygame.image.load(f'Images/Slime/Attack/{i}.png')
+				img = pygame.image.load(f'Images/Slime/Attack/{i}.png').convert_alpha()
 				img = pygame.transform.scale(img,(80,80))
 				temp_list.append(img)
 		self.animation_list_leather.append(temp_list)
@@ -260,11 +270,11 @@ class fighter():
 		temp_list = []
 		for i in range(3):
 			if self.name == 'Hero':
-				img = pygame.image.load(f'Images/Hero/Hurt/L{i}.png')
+				img = pygame.image.load(f'Images/Hero/Hurt/L{i}.png').convert_alpha()
 				img = pygame.transform.scale(img,(250,250))
 				temp_list.append(img)
 			elif self.name == 'Slime':
-				img = pygame.image.load(f'Images/Slime/Hurt/{i}.png')
+				img = pygame.image.load(f'Images/Slime/Hurt/{i}.png').convert_alpha()
 				img = pygame.transform.scale(img,(80,80))
 				temp_list.append(img)	
 		self.animation_list_leather.append(temp_list)
@@ -272,18 +282,18 @@ class fighter():
 		temp_list = []
 		for i in range(5):
 			if self.name == 'Hero':
-				img = pygame.image.load(f'Images/Hero/Death/L{i}.png')
+				img = pygame.image.load(f'Images/Hero/Death/L{i}.png').convert_alpha()
 				img = pygame.transform.scale(img,(250,250))
 				temp_list.append(img)
 			elif self.name == 'Slime':
-				img = pygame.image.load(f'Images/Slime/Death/{i}.png')
+				img = pygame.image.load(f'Images/Slime/Death/{i}.png').convert_alpha()
 				img = pygame.transform.scale(img,(80,80))
 				temp_list.append(img)	
 		self.animation_list_leather.append(temp_list)
 		#index 4 = skills
 		temp_list = []
 		for i in range(5):
-			img = pygame.image.load(f'Images/Hero/Skill/Fireball/L{i}.png')
+			img = pygame.image.load(f'Images/Hero/Skill/Fireball/L{i}.png').convert_alpha()
 			img = pygame.transform.scale(img,(250 ,250))
 			temp_list.append(img)
 		self.animation_list_leather.append(temp_list)		
@@ -367,7 +377,17 @@ class fighter():
 				damage = self.strength + randdamage
 
 		#deal damage to enemy			
-		target.hp -= (damage - self.defense)
+		target.hp -= math.floor(damage - target.defense)
+		#lifesteal
+		if self.name == 'Hero':
+			if eye_of_vladimir_active == True and self.hp < self.max_hp:
+				lifesteal_effect = math.floor(damage / 4)
+				if self.max_hp - self.hp > lifesteal_effect:
+					lifesteal_amount = lifesteal_effect
+				else:
+					lifesteal_amount = hero.max_hp - hero.hp
+				self.hp += lifesteal_amount
+
 		#run target hurt animation
 		target.hurt()
 		#check if target is dead
@@ -377,7 +397,7 @@ class fighter():
 			target.death()
 		if target.name == 'Hero':
 			#damage text
-			damage_text = damagetext(target.rect.centerx - 25, target.rect.y + 80, str(damage), red)
+			damage_text = damagetext(target.rect.centerx - 25, target.rect.y + 80, str(math.floor(damage - target.defense)), red)
 			damage_text_group.add(damage_text)
 			#evasion text
 			if rollmisschance < misschance:
@@ -390,7 +410,7 @@ class fighter():
 				damage_text = damagetext(target.rect.centerx - 25, target.rect.y + 100, 'Critical(' + str(criticalchance) + ')% chance', red)
 				damage_text_group.add(damage_text)							
 		if target.name == 'Slime':
-			damage_text = damagetext(target.rect.centerx, target.rect.y, str(damage), red)
+			damage_text = damagetext(target.rect.centerx, target.rect.y, str(math.floor(damage - target.defense)), red)
 			damage_text_group.add(damage_text)
 			if rollmisschance < misschance:
 				damage_text = damagetext(target.rect.centerx, target.rect.y + 20, 'Evaded(' + str(misschance) + ')% chance', red)
@@ -402,10 +422,27 @@ class fighter():
 				damage_text = damagetext(target.rect.centerx, target.rect.y + 20, 'Critical(' + str(criticalchance) + ')% chance', red)
 				damage_text_group.add(damage_text)		
 	
+
+		if self.name == 'Hero':
+			if raptor_claw_active == True:
+				rollattackagain = random.randint(0,100)
+				if rollattackagain > 10:
+					target.hp -= math.floor(damage / 2)
+					#check if target is dead
+					if target.hp < 1:
+						target.hp = 0
+						target.alive = False
+						target.death()						
+					damage_text = damagetext(target.rect.centerx, target.rect.y - 40, str(math.floor(damage / 2)), yellow)
+					damage_text_group.add(damage_text)
+					damage_text = damagetext(target.rect.centerx, target.rect.y - 20, 'Raptor claw damage', yellow)
+					damage_text_group.add(damage_text)
+					
 		#set variables to attack animation
 		self.action = 1
 		self.frame_index = 0
 		self.update_time = pygame.time.get_ticks()
+	
 
 	def hurt(self):
 		#set variables to hurt animation
@@ -426,7 +463,8 @@ class fighter():
 		global four_leaf_clover_active
 		global feather_active
 		global leather_active
-
+		global condensed_lightning_active
+		global eye_of_vladimir_active
 		if self.alive == False:
 			if self.level > 0:
 				if ring_of_health_active == False:
@@ -438,7 +476,7 @@ class fighter():
 			if self.level > 1:
 				if raptor_claw_active == False:
 					rollitemactive = random.randint(0,100)
-					if rollitemactive > 75:
+					if rollitemactive > 10:
 						raptor_claw_active = True
 						hero.strength += 5
 			if self.level > 1:
@@ -458,6 +496,21 @@ class fighter():
 					rollitemactive = random.randint(0,100)
 					if rollitemactive > 80:
 						leather_active = True
+			if self.level > 0:
+				if eye_of_vladimir_active == False:
+					rollitemactive = random.randint(0,100)
+					if rollitemactive > 80:
+						eye_of_vladimir_active = True
+						hero.strength += 3
+						hero.accuracy += 3
+			if self.level > 0:
+				if condensed_lightning_active == False:
+					rollitemactive = random.randint(0,100)
+					if rollitemactive > 80:
+						condensed_lightning_active = True
+						hero.max_mana += 5
+						hero.mana += 5
+						hero.luck += 3
 
 	#resets
 	def resetdefeat(self):
@@ -579,7 +632,7 @@ class draw_heal(pygame.sprite.Sprite):
 		self.frame_index = 0
 		self.update_time = pygame.time.get_ticks()	
 		for i in range(4):
-			img = pygame.image.load(f'Images/Icon/Heal/{i}.png')
+			img = pygame.image.load(f'Images/Icon/Heal/{i}.png').convert_alpha()
 			img = pygame.transform.scale(img, (img.get_width() * 3, img.get_height() * 3))
 			self.animation_list.append(img)
 		self.image = self.animation_list[self.frame_index]
@@ -609,7 +662,7 @@ class draw_fireball(pygame.sprite.Sprite):
 		self.frame_index = 5
 		self.update_time = pygame.time.get_ticks()	
 		for i in range(10):
-			img = pygame.image.load(f'Images/Icon/Fireball/{i}.png')
+			img = pygame.image.load(f'Images/Icon/Fireball/{i}.png').convert_alpha()
 			img = pygame.transform.scale(img, (img.get_width() * 3, img.get_height() * 3))
 			self.animation_list.append(img)
 		self.image = self.animation_list[self.frame_index]
@@ -1005,7 +1058,9 @@ while run:
 					raptor_claw_active = False
 					four_leaf_clover_active = False
 					feather_active = False
-
+					leather_active = False
+					eye_of_vladimir_active = False
+					condensed_lightning_active = False
 					for slime in slime_list:
 						slime.resetmonsterdefeat()
 					current_fighter = 1
@@ -1036,3 +1091,8 @@ while run:
 	pygame.display.update()
 
 pygame.quit()
+
+#menus
+#bosses
+#equipment
+#monsters
