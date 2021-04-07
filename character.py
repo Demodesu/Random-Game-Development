@@ -44,6 +44,7 @@ class Character():
 		self.health_potion = health_potion
 		#alive
 		self.alive = True
+		#hitbox
 
 	def Update(self):
 			#animation cooldown in milliseconds
@@ -99,8 +100,32 @@ class Character():
 		self.frame_index = 0
 		self.update_time = pygame.time.get_ticks()
 
+	def Level_Up_Monster(self):
+		self.max_hp += random.randint(1,3)
+		self.hp = self.max_hp
+		self.experience += self.level * 2
+		self.level += 1
+		self.strength += 1
+		self.luck += 1
+		self.accuracy += 1
+		self.evasion += 1
+
+	def Level_Up_Hero(self, experiencethreshold = None):
+		if experiencethreshold is None:
+			self.experiencethreshold = []
+		else:
+			self.experiencethreshold = experiencethreshold
+		if self.experience >= self.experiencethreshold[-1]:
+			self.level += 1
+			nextexperience = self.experiencethreshold[-1] * 3 # or experiencethreshold[0]
+			self.experiencethreshold.append(nextexperience)
+			self.statpoints += 5
+			self.max_mp += 5			
+
 	def Draw(self):
 		screen.blit(self.image, self.rect)
+		#check hitbox
+		#pygame.draw.rect(screen,(255,0,0),self.hitbox,2)
 
 class Hero(Character):
 	def	__init__(self, x, y, name, max_hp, max_mp, level, experience, statpoints, strength, intelligence, defense, luck, evasion, accuracy, mana_potion, health_potion):
@@ -134,6 +159,7 @@ class Hero(Character):
 		#get the hitbox/rectangle of the character
 		self.rect = self.image.get_rect()
 		self.rect.center = (x,y)
+		self.hitbox = pygame.rect.Rect(self.x - 70, self.y - 50, 100, 200)
 
 	def Skill(self):
 		#set variables to attack animation
@@ -146,7 +172,9 @@ class Slime(Character):
 		super().__init__(x, y, name, max_hp, max_mp, level, experience, strength, intelligence, defense, luck, evasion, accuracy, health_potion)
 		self.animation_list = [] #this is the slime's animation list -> slime.animation_list[]
 		self.frame_index = 0
+		self.start_frame_index = 0
 		self.action = 0 #0 = idle; 1 = attack; 2 = hurt; 3 = dead
+		self.start_action = 0
 		self.update_time = pygame.time.get_ticks()
 		#load images for each index
 		#5 animation states; 0 = idle; 1 = attack; 2 = hurt; 3 = dead; run loop 4 times to load each set of animation
@@ -164,3 +192,34 @@ class Slime(Character):
 		#get the hitbox/rectangle of the character
 		self.rect = self.image.get_rect()
 		self.rect.center = (x,y)
+		self.hitbox = pygame.rect.Rect(self.x - 25, self.y - 15, 50, 50)
+
+class Zombie(Character):
+	def __init__(self, x, y, name, max_hp, max_mp, level, experience, strength, intelligence, defense, luck, evasion, accuracy, health_potion):
+		super().__init__(x, y, name, max_hp, max_mp, level, experience, strength, intelligence, defense, luck, evasion, accuracy, health_potion)
+		self.animation_list = [] #this is the zombie's animation list -> slime.animation_list[]
+		self.frame_index = 0
+		self.start_frame_index = 0
+		self.action = 0 #0 = idle; 1 = attack; 2 = hurt; 3 = dead
+		self.start_action = 0
+		self.update_time = pygame.time.get_ticks()
+		#load images for each index
+		#5 animation states; 0 = idle; 1 = attack; 2 = hurt; 3 = dead; run loop 4 times to load each set of animation
+		number_of_pictures_list = [4,6,4,7]
+		which_state_list = ['Idle', 'Attack', 'Hurt', 'Death']
+		for state in range(len(which_state_list)):
+			each_state_animation_list = []
+			for i in range(number_of_pictures_list[state]):
+				img = pygame.image.load(f'Images/{self.name}/{which_state_list[state]}/{i}.png').convert_alpha()
+				img = pygame.transform.scale(img,(250,250))
+				img = pygame.transform.flip(img,True,False)
+				each_state_animation_list.append(img)			
+			self.animation_list.append(each_state_animation_list)
+		#which image is currently displayed
+		self.image = self.animation_list[self.action][self.frame_index]
+		#get the hitbox/rectangle of the character
+		self.rect = self.image.get_rect()
+		self.rect.center = (x,y)
+		self.hitbox = pygame.rect.Rect(self.x - 50, self.y - 50, 100, 200)
+
+

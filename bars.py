@@ -24,11 +24,13 @@ class Health_Bar(Bar):
 		self.hp = hp
 		self.max_hp = max_hp
 
-	def Draw(self, hp):
+	def Draw(self, hp, max_hp):
 		self.hp = hp
+		self.max_hp = max_hp
 		ratio = self.hp / self.max_hp
 		pygame.draw.rect(screen, red, (self.x, self.y, 130, 20))
 		pygame.draw.rect(screen, green, (self.x, self.y, 130 * ratio, 20))	
+
 
 class Mana_Bar(Bar):
 	def __init__(self, x, y, mp, max_mp):
@@ -38,7 +40,7 @@ class Mana_Bar(Bar):
 		self.mp = mp
 		self.max_mp = max_mp
 
-	def Draw(self):
+	def Draw(self, mp):
 		ratio = self.mp / self.max_mp
 		pygame.draw.rect(screen, red, (self.x, self.y, 130, 20))
 		pygame.draw.rect(screen, blue, (self.x, self.y, 130 * ratio, 20))	
@@ -58,3 +60,31 @@ class Experience_Bar(Bar):
 		ratio = self.experience / self.experiencethreshold[-1]
 		pygame.draw.rect(screen, red, (self.x, self.y, 800, 14))
 		pygame.draw.rect(screen, yellow, (self.x, self.y, 800 * ratio, 14))
+
+class Button():
+	def __init__(self, surface, x, y, image, size_x, size_y):
+		self.image = pygame.transform.scale(image, (size_x, size_y))
+		self.rect = self.image.get_rect()
+		self.rect.topleft = (x, y)
+		self.clicked = False
+		self.surface = surface
+
+	def Draw(self):
+		action = False
+
+		#get mouse position
+		pos = pygame.mouse.get_pos()
+
+		#check mouseover and clicked conditions
+		if self.rect.collidepoint(pos):
+			if pygame.mouse.get_pressed()[0] == 1 and self.clicked == False:
+				action = True
+				self.clicked = True
+
+		if pygame.mouse.get_pressed()[0] == 0:
+			self.clicked = False
+
+		#draw button
+		self.surface.blit(self.image, (self.rect.x, self.rect.y))
+
+		return action

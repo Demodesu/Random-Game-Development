@@ -11,7 +11,7 @@ screen = pygame.display.set_mode((screen_width,screen_height))
 panel_img = pygame.image.load('Images/Icon/Panel.png').convert_alpha()
 
 #drawing panel
-def Draw_Panel(hero, slime_list, stat_color, font, screen_height, bottom_panel, screen):
+def Draw_Panel(hero, monster_list, monster_index, stat_color, font, screen_height, bottom_panel, screen):
 	#draw panel rectangle
 	screen.blit(panel_img,(0,screen_height - bottom_panel))
 	#show knight stats
@@ -26,7 +26,7 @@ def Draw_Panel(hero, slime_list, stat_color, font, screen_height, bottom_panel, 
 	Draw_Text(f'EVA: {hero.evasion}', font, stat_color, 320, screen_height - bottom_panel + 100)
 	Draw_Text(f'DEF: {hero.defense}', font, stat_color, 320, screen_height - bottom_panel + 120)
 	#show slime stats	
-	for count, i in enumerate(slime_list):
+	for count, i in enumerate(monster_list[monster_index]):
 		Draw_Text(f'{i.name} HP: {i.hp}', font, stat_color, 550, (screen_height - bottom_panel + 20) + count * 60)	
 		Draw_Text(f'LVL: {i.level}', font, stat_color, 440, (screen_height - bottom_panel + 20) + count * 60)
 
