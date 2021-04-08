@@ -24,7 +24,7 @@ class Health_Bar(Bar):
 		self.hp = hp
 		self.max_hp = max_hp
 
-	def Draw(self, hp, max_hp):
+	def draw(self, hp, max_hp):
 		self.hp = hp
 		self.max_hp = max_hp
 		ratio = self.hp / self.max_hp
@@ -40,23 +40,25 @@ class Mana_Bar(Bar):
 		self.mp = mp
 		self.max_mp = max_mp
 
-	def Draw(self, mp):
+	def draw(self, mp, max_mp):
+		self.mp = mp
+		self.max_mp = max_mp
 		ratio = self.mp / self.max_mp
 		pygame.draw.rect(screen, red, (self.x, self.y, 130, 20))
 		pygame.draw.rect(screen, blue, (self.x, self.y, 130 * ratio, 20))	
 		
 class Experience_Bar(Bar):
-	def __init__(self, x, y, experience, experiencethreshold = None):
+	def __init__(self, x, y):
 		super().__init__(screen)
 		self.x = x
 		self.y = y
+
+	def draw(self, experience, experiencethreshold = None):
 		self.experience = experience
 		if experiencethreshold is None:
 			self.experiencethreshold = []
 		else:
 			self.experiencethreshold = experiencethreshold
-
-	def Draw(self):
 		ratio = self.experience / self.experiencethreshold[-1]
 		pygame.draw.rect(screen, red, (self.x, self.y, 800, 14))
 		pygame.draw.rect(screen, yellow, (self.x, self.y, 800 * ratio, 14))
@@ -69,7 +71,7 @@ class Button():
 		self.clicked = False
 		self.surface = surface
 
-	def Draw(self):
+	def draw(self):
 		action = False
 
 		#get mouse position
