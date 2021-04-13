@@ -51,22 +51,22 @@ reset_img = pygame.image.load('Images/Icon/Reset.png').convert_alpha()
 #characters
 ##hero
 Character.Random_Stats_Hero(random_stat_list)
-hero = Character.Hero(200, 265, 'Hero', 50, 20, 1, 0, 0, random_stat_list[0], random_stat_list[1], 5, random_stat_list[2], random_stat_list[3], random_stat_list[4], 2, 2)
+hero = Character.Hero(200, 265, 'Hero', 50, 20, 1, 0, 0, random_stat_list[0], random_stat_list[1], 5, random_stat_list[2], random_stat_list[3], random_stat_list[4], 0, 2, 2)
 ##slime
 Character.Random_Stats_Monsters(random_stat_list_monsters)
-slime0 = Character.Slime(530, 350, 'Slime', 10, 10, 1, 5, random_stat_list_monsters[0], random_stat_list_monsters[1], 2, random_stat_list_monsters[2], random_stat_list_monsters[3], random_stat_list_monsters[4], 1)
-slime1 = Character.Slime(650, 350, 'Slime', 10, 10, 1, 5, random_stat_list_monsters[0], random_stat_list_monsters[1], 2, random_stat_list_monsters[2], random_stat_list_monsters[3], random_stat_list_monsters[4], 1)
+slime0 = Character.Slime(530, 350, 'Slime', 10, 10, 1, 5, random_stat_list_monsters[0], random_stat_list_monsters[1], 2, random_stat_list_monsters[2], random_stat_list_monsters[3], random_stat_list_monsters[4], 0, 1)
+slime1 = Character.Slime(650, 350, 'Slime', 10, 10, 1, 5, random_stat_list_monsters[0], random_stat_list_monsters[1], 2, random_stat_list_monsters[2], random_stat_list_monsters[3], random_stat_list_monsters[4], 0, 1)
 slime_list = []
 slime_list.append(slime0)
 slime_list.append(slime1)
 ##zombie
-zombie0 = Character.Zombie(530, 265, 'Zombie', 15, 10, 1, 5, random_stat_list_monsters[0] + 2, random_stat_list_monsters[1] + 1, 2, random_stat_list_monsters[2] + 1, random_stat_list_monsters[3] + 1, random_stat_list_monsters[4] + 1, 1)
-zombie1 = Character.Zombie(650, 265, 'Zombie', 15, 10, 1, 5, random_stat_list_monsters[0] + 2, random_stat_list_monsters[1] + 1, 2, random_stat_list_monsters[2] + 1, random_stat_list_monsters[3] + 1, random_stat_list_monsters[4] + 1, 1)
+zombie0 = Character.Zombie(530, 265, 'Zombie', 15, 10, 1, 5, random_stat_list_monsters[0] + 2, random_stat_list_monsters[1] + 1, 2, random_stat_list_monsters[2] + 1, random_stat_list_monsters[3] + 1, random_stat_list_monsters[4] + 1, 0, 1)
+zombie1 = Character.Zombie(650, 265, 'Zombie', 15, 10, 1, 5, random_stat_list_monsters[0] + 2, random_stat_list_monsters[1] + 1, 2, random_stat_list_monsters[2] + 1, random_stat_list_monsters[3] + 1, random_stat_list_monsters[4] + 1, 0, 1)
 zombie_list = []
 zombie_list.append(zombie0)
 zombie_list.append(zombie1)
 ##zombie boss
-zombie_boss0 = Character.Zombie_Boss(530, 265, 'Zombie Boss', 50, 10, 1, 5, random_stat_list_monsters[0] + 15, random_stat_list_monsters[1] + 10, 2, random_stat_list_monsters[2] + 10, random_stat_list_monsters[3] + 10, random_stat_list_monsters[4] + 10, 1)
+zombie_boss0 = Character.Zombie_Boss(530, 265, 'Zombie Boss', 50, 10, 1, 5, random_stat_list_monsters[0] + 15, random_stat_list_monsters[1] + 10, 2, random_stat_list_monsters[2] + 10, random_stat_list_monsters[3] + 10, random_stat_list_monsters[4] + 10, 0, 1)
 zombie_boss_list = []
 zombie_boss_list.append(zombie_boss0)
 ###append all monsters into list
@@ -80,6 +80,7 @@ monster_list.append(zombie_boss_list)
 hero_health_bar = Bars.Health_Bar(20, screen_height - bottom_panel + 40, hero.hp, hero.max_hp)
 hero_mana_bar = Bars.Mana_Bar(160, screen_height - bottom_panel + 40, hero.mp, hero.max_mp)
 hero_experience_bar = Bars.Experience_Bar(0, screen_height - bottom_panel)
+hero_shield_bar = Bars.Shield_Bar(20, screen_height - bottom_panel + 40)
 ##slime
 slime0_health_bar = Bars.Health_Bar(550, screen_height - bottom_panel + 40, slime0.hp, slime0.max_hp)
 slime1_health_bar = Bars.Health_Bar(550, screen_height - bottom_panel + 100, slime1.hp, slime1.max_hp)
@@ -236,6 +237,7 @@ def game_event_2():
 inventory = []
 
 fire_ball_sprite_group = pygame.sprite.Group()
+guard_sprite_group = pygame.sprite.Group()
 damage_text_group = pygame.sprite.Group()
 
 #game#
@@ -254,6 +256,7 @@ while run:
 	hero_health_bar.draw(hero.hp, hero.max_hp)
 	hero_mana_bar.draw(hero.mp, hero.max_mp)
 	hero_experience_bar.draw(hero.experience, experiencethreshold)
+	hero_shield_bar.draw(hero.shield, hero.max_hp)
 	#---------------------------#
 	#draw hero
 	hero.update()
@@ -268,6 +271,8 @@ while run:
 	#---------------------------#
 	fire_ball_sprite_group.update()
 	fire_ball_sprite_group.draw(screen)
+	guard_sprite_group.update()
+	guard_sprite_group.draw(screen)
 	damage_text_group.update()
 	damage_text_group.draw(screen)
 	#---------------------------#
@@ -318,9 +323,11 @@ while run:
 						current_fighter += 1
 						action_cooldown = 0
 
-					# #guard
-					# if action_index == 2:
-						
+					#guard
+					if click == True and action_index == 2:
+						hero.guard(guard_sprite_group, damage_text_group)
+						current_fighter += 1
+						action_cooldown = 0
 
 		#enemy action
 		for count, monster in enumerate(monster_list[monster_index]):
@@ -407,7 +414,7 @@ while run:
 					hero.eva_up_button()
 			if event.key == pygame.K_LALT:
 				action_index += 1
-				if action_index > 1:
+				if action_index > 2:
 					action_index = 0
 			if event.key == pygame.K_r:
 				Screen_Menus.options_menu(inventory)

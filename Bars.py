@@ -63,6 +63,18 @@ class Experience_Bar(Bar):
 		pygame.draw.rect(screen, red, (self.x, self.y, 800, 14))
 		pygame.draw.rect(screen, yellow, (self.x, self.y, 800 * ratio, 14))
 
+class Shield_Bar(Bar):
+	def __init__(self, x, y):
+		super().__init__(screen)
+		self.x = x
+		self.y = y
+
+	def draw(self, shield, max_hp):
+		self.shield = shield
+		self.max_hp = max_hp
+		ratio = self.shield / self.max_hp
+		pygame.draw.rect(screen, yellow, (self.x, self.y, 130 * ratio, 20))
+
 class Button():
 	def __init__(self, surface, x, y, image, size_x, size_y):
 		self.image = pygame.transform.scale(image, (size_x, size_y))

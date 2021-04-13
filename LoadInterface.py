@@ -9,6 +9,7 @@ screen = pygame.display.set_mode((screen_width,screen_height))
 panel_img = pygame.image.load('Images/Icon/Panel.png').convert_alpha()
 sword_icon_img = pygame.image.load('Images/Icon/SwordIcon.png').convert_alpha()
 fire_ball_icon_img = pygame.image.load('Images/Icon/FireBallIcon.png').convert_alpha()
+guard_icon_img = pygame.image.load('Images/Shield/ShieldButton.png').convert_alpha()
 
 #drawing panel
 def draw_panel(hero, monster_list, monster_index, stat_color, font, screen_height, bottom_panel, screen):
@@ -49,3 +50,5 @@ def draw_current_attack(action_index):
 		screen.blit(sword_icon_img, (0,0))
 	elif action_index == 1:
 		screen.blit(fire_ball_icon_img, (0,0))
+	elif action_index == 2:
+		screen.blit(guard_icon_img, (0,0))

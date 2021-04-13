@@ -14,7 +14,7 @@ yellow = (255,255,0)
 
 
 class Character():
-	def __init__(self, x, y, name, max_hp, max_mp, level, experience, strength, intelligence, defense, luck, evasion, accuracy, health_potion):
+	def __init__(self, x, y, name, max_hp, max_mp, level, experience, strength, intelligence, defense, luck, evasion, accuracy, shield, health_potion):
 		#defaults
 		self.x = x
 		self.y = y
@@ -52,6 +52,7 @@ class Character():
 		self.health_potion = health_potion
 		#alive
 		self.alive = True
+		self.shield = shield
 		#hitbox
 	#---------------------------------------------------------#
 	#update and draw
@@ -90,8 +91,17 @@ class Character():
 			damage = 0
 		else:
 			damage = randdamage + self.strength - target.defense
-		target.hp -= math.floor(damage)
-		damage_text = Damage_Text((target.hitbox.x + target.hitbox.width / 2), target.hitbox.y, str(math.floor(damage)), red)
+		if target.shield > 0:
+			if target.shield - math.floor(damage) >= 0:
+				target.shield -= math.floor(damage)
+				damage_text = Damage_Text((target.hitbox.x + target.hitbox.width / 2), target.hitbox.y, '0', red)
+			else:
+				target.hp -= (target.shield - math.floor(damage)) * -1
+				target.shield = 0
+				damage_text = Damage_Text((target.hitbox.x + target.hitbox.width / 2), target.hitbox.y, str((target.shield - math.floor(damage)) * -1), red)
+		else:
+			target.hp -= math.floor(damage)
+			damage_text = Damage_Text((target.hitbox.x + target.hitbox.width / 2), target.hitbox.y, str(math.floor(damage)), red)
 		damage_text_group.add(damage_text)
 		#run target hurt animation
 		target.hurt()
@@ -104,6 +114,17 @@ class Character():
 		self.action = 1
 		self.frame_index = 0
 		self.update_time = pygame.time.get_ticks()
+
+	def guard(self, guard_sprite_group, damage_text_group):
+		if self.shield > self.max_hp / 2:
+			damage_text = Damage_Text((self.hitbox.x + self.hitbox.width / 2), self.hitbox.y, '0', yellow)
+			pass
+		else:
+			self.shield += self.max_hp / 4 	
+			damage_text = Damage_Text((self.hitbox.x + self.hitbox.width / 2), self.hitbox.y, str(self.max_hp / 4), yellow)
+		guard_animation = Guard_Images((self.hitbox.x + self.hitbox.width / 2), self.hitbox.y)
+		guard_sprite_group.add(guard_animation)
+		damage_text_group.add(damage_text)
 
 	def hurt(self):
 		#set variables to attack animation
@@ -130,8 +151,8 @@ class Character():
 	#---------------------------------------------------------#
 
 class Hero(Character):
-	def	__init__(self, x, y, name, max_hp, max_mp, level, experience, statpoints, strength, intelligence, defense, luck, evasion, accuracy, mana_potion, health_potion):
-		super().__init__(x, y, name, max_hp, max_mp, level, experience, strength, intelligence, defense, luck, evasion, accuracy, health_potion)
+	def	__init__(self, x, y, name, max_hp, max_mp, level, experience, statpoints, strength, intelligence, defense, luck, evasion, accuracy, shield, mana_potion, health_potion):
+		super().__init__(x, y, name, max_hp, max_mp, level, experience, strength, intelligence, defense, luck, evasion, accuracy, shield, health_potion)
 		#start stat points
 		self.start_statpoints = statpoints
 		#current stat points
@@ -258,8 +279,8 @@ class Hero(Character):
 			self.mp -= 5
 
 class Slime(Character):
-	def __init__(self, x, y, name, max_hp, max_mp, level, experience, strength, intelligence, defense, luck, evasion, accuracy, health_potion):
-		super().__init__(x, y, name, max_hp, max_mp, level, experience, strength, intelligence, defense, luck, evasion, accuracy, health_potion)
+	def __init__(self, x, y, name, max_hp, max_mp, level, experience, strength, intelligence, defense, luck, evasion, accuracy, shield, health_potion):
+		super().__init__(x, y, name, max_hp, max_mp, level, experience, strength, intelligence, defense, luck, evasion, accuracy, shield, health_potion)
 		self.animation_list = [] #this is the slime's animation list -> slime.animation_list[]
 		self.frame_index = 0
 		self.start_frame_index = 0
@@ -285,8 +306,8 @@ class Slime(Character):
 		self.hitbox = pygame.rect.Rect(self.x - 25, self.y - 15, 50, 50)
 
 class Zombie(Character):
-	def __init__(self, x, y, name, max_hp, max_mp, level, experience, strength, intelligence, defense, luck, evasion, accuracy, health_potion):
-		super().__init__(x, y, name, max_hp, max_mp, level, experience, strength, intelligence, defense, luck, evasion, accuracy, health_potion)
+	def __init__(self, x, y, name, max_hp, max_mp, level, experience, strength, intelligence, defense, luck, evasion, accuracy, shield, health_potion):
+		super().__init__(x, y, name, max_hp, max_mp, level, experience, strength, intelligence, defense, luck, evasion, accuracy, shield, health_potion)
 		self.animation_list = [] #this is the zombie's animation list -> slime.animation_list[]
 		self.frame_index = 0
 		self.start_frame_index = 0
@@ -313,8 +334,8 @@ class Zombie(Character):
 		self.hitbox = pygame.rect.Rect(self.x - 50, self.y - 50, 100, 200)
 
 class Zombie_Boss(Character):
-	def __init__(self, x, y, name, max_hp, max_mp, level, experience, strength, intelligence, defense, luck, evasion, accuracy, health_potion):
-		super().__init__(x, y, name, max_hp, max_mp, level, experience, strength, intelligence, defense, luck, evasion, accuracy, health_potion)
+	def __init__(self, x, y, name, max_hp, max_mp, level, experience, strength, intelligence, defense, luck, evasion, accuracy, shield, health_potion):
+		super().__init__(x, y, name, max_hp, max_mp, level, experience, strength, intelligence, defense, luck, evasion, accuracy, shield, health_potion)
 		self.animation_list = [] #this is the zombie's animation list -> slime.animation_list[]
 		self.frame_index = 0
 		self.start_frame_index = 0
@@ -348,6 +369,34 @@ class Fire_Ball_Images(pygame.sprite.Sprite):
 		self.update_time = pygame.time.get_ticks()	
 		for i in range(10):
 			img = pygame.image.load(f'Images/Icon/Fireball/{i}.png').convert_alpha()
+			img = pygame.transform.scale(img, (img.get_width() * 3, img.get_height() * 3))
+			self.animation_list.append(img)
+		self.image = self.animation_list[self.frame_index]
+		self.rect = self.image.get_rect()
+		self.rect.center = (x,y)
+
+	def update(self):
+		#animation cooldown in milliseconds
+		animation_cooldown = 100
+		#handle animation
+		#update image
+		self.image = self.animation_list[self.frame_index]	
+		#check if enough time has passes since last update
+		if pygame.time.get_ticks() - self.update_time > animation_cooldown:
+			self.update_time = pygame.time.get_ticks()
+			self.frame_index += 1
+		#if animation runs out reset to the start
+		if self.frame_index >= len(self.animation_list):
+			self.kill()
+
+class Guard_Images(pygame.sprite.Sprite):
+	def __init__(self, x, y):
+		pygame.sprite.Sprite.__init__(self)
+		self.animation_list = []
+		self.frame_index = 0
+		self.update_time = pygame.time.get_ticks()	
+		for i in range(3):
+			img = pygame.image.load(f'Images/Shield/{i}.png').convert_alpha()
 			img = pygame.transform.scale(img, (img.get_width() * 3, img.get_height() * 3))
 			self.animation_list.append(img)
 		self.image = self.animation_list[self.frame_index]
