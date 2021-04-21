@@ -1,4 +1,4 @@
-import math, pygame, random, LoadInterface, Character, Bars, sys, Screen_Menus
+import math, pygame, random, sys, csv, LoadInterface, Character, Bars, Screen_Menus,  Map
 
 pygame.init()
 
@@ -8,8 +8,7 @@ fps = 120
 
 #game window#
 bottom_panel = 150
-screen_width = 800
-screen_height = 400 + bottom_panel
+screen_width, screen_height = 800, 400 + bottom_panel
 screen = pygame.display.set_mode((screen_width,screen_height))
 pygame.display.set_caption('Battle')
 
@@ -25,6 +24,7 @@ monster_index = 0
 game_over = 0
 random_stat_list = []
 random_stat_list_monsters = []
+gold = 0
 #controls player action
 action_index = 0 #0 = attack; 1 = fireball
 #turns counter
@@ -37,7 +37,7 @@ red = (255,0,0)
 green = (0,255,0)
 blue = (0,0,255)
 yellow = (255,255,0)
-
+orange = (255,165,0)
 #load assets#
 background_img = pygame.image.load('Images/Background/Background0.png').convert_alpha()
 background_img = pygame.transform.scale(background_img,(800,400))
@@ -51,22 +51,22 @@ reset_img = pygame.image.load('Images/Icon/Reset.png').convert_alpha()
 #characters
 ##hero
 Character.Random_Stats_Hero(random_stat_list)
-hero = Character.Hero(200, 265, 'Hero', 50, 20, 1, 0, 0, random_stat_list[0], random_stat_list[1], 5, random_stat_list[2], random_stat_list[3], random_stat_list[4], 0, 2, 2)
+hero = Character.Hero(200, 265, 'Hero', 50, 20, 1, 0, 0, random_stat_list[0], random_stat_list[1], 5, random_stat_list[2], random_stat_list[3], random_stat_list[4], 0, 2, 2, 1000)
 ##slime
 Character.Random_Stats_Monsters(random_stat_list_monsters)
-slime0 = Character.Slime(530, 350, 'Slime', 10, 10, 1, 5, random_stat_list_monsters[0], random_stat_list_monsters[1], 2, random_stat_list_monsters[2], random_stat_list_monsters[3], random_stat_list_monsters[4], 0, 1)
-slime1 = Character.Slime(650, 350, 'Slime', 10, 10, 1, 5, random_stat_list_monsters[0], random_stat_list_monsters[1], 2, random_stat_list_monsters[2], random_stat_list_monsters[3], random_stat_list_monsters[4], 0, 1)
+slime0 = Character.Slime(530, 350, 'Slime', 10, 10, 1, 5, random_stat_list_monsters[0], random_stat_list_monsters[1], 2, random_stat_list_monsters[2], random_stat_list_monsters[3], random_stat_list_monsters[4], 0, 1, 20)
+slime1 = Character.Slime(650, 350, 'Slime', 10, 10, 1, 5, random_stat_list_monsters[0], random_stat_list_monsters[1], 2, random_stat_list_monsters[2], random_stat_list_monsters[3], random_stat_list_monsters[4], 0, 1, 20)
 slime_list = []
 slime_list.append(slime0)
 slime_list.append(slime1)
 ##zombie
-zombie0 = Character.Zombie(530, 265, 'Zombie', 15, 10, 1, 5, random_stat_list_monsters[0] + 2, random_stat_list_monsters[1] + 1, 2, random_stat_list_monsters[2] + 1, random_stat_list_monsters[3] + 1, random_stat_list_monsters[4] + 1, 0, 1)
-zombie1 = Character.Zombie(650, 265, 'Zombie', 15, 10, 1, 5, random_stat_list_monsters[0] + 2, random_stat_list_monsters[1] + 1, 2, random_stat_list_monsters[2] + 1, random_stat_list_monsters[3] + 1, random_stat_list_monsters[4] + 1, 0, 1)
+zombie0 = Character.Zombie(530, 265, 'Zombie', 15, 10, 1, 5, random_stat_list_monsters[0] + 2, random_stat_list_monsters[1] + 1, 2, random_stat_list_monsters[2] + 1, random_stat_list_monsters[3] + 1, random_stat_list_monsters[4] + 1, 0, 1, 30)
+zombie1 = Character.Zombie(650, 265, 'Zombie', 15, 10, 1, 5, random_stat_list_monsters[0] + 2, random_stat_list_monsters[1] + 1, 2, random_stat_list_monsters[2] + 1, random_stat_list_monsters[3] + 1, random_stat_list_monsters[4] + 1, 0, 1, 30)
 zombie_list = []
 zombie_list.append(zombie0)
 zombie_list.append(zombie1)
 ##zombie boss
-zombie_boss0 = Character.Zombie_Boss(530, 265, 'Zombie Boss', 50, 10, 1, 5, random_stat_list_monsters[0] + 15, random_stat_list_monsters[1] + 10, 2, random_stat_list_monsters[2] + 10, random_stat_list_monsters[3] + 10, random_stat_list_monsters[4] + 10, 0, 1)
+zombie_boss0 = Character.Zombie_Boss(530, 265, 'Zombie Boss', 50, 10, 1, 5, random_stat_list_monsters[0] + 15, random_stat_list_monsters[1] + 10, 2, random_stat_list_monsters[2] + 10, random_stat_list_monsters[3] + 10, random_stat_list_monsters[4] + 10, 0, 1, 50)
 zombie_boss_list = []
 zombie_boss_list.append(zombie_boss0)
 ###append all monsters into list
@@ -106,19 +106,7 @@ monster_health_list.append(zombie_boss_health_list)
 #button
 restart_button = Bars.Button(screen, 345, 120, reset_img, 120, 30)
 
-def random_spawn():
-	global monster_index
-	monster_appearance_chance = random.randint(0,1)
-	if monster_appearance_chance == 0:
-		#slime
-		monster_index = 0
-	elif monster_appearance_chance == 1:
-		#zombie
-		monster_index = 1
-	if stage_counter % 4 == 0:
-		#zombie boss
-		monster_index = 2
-
+def start_spawn():
 	for count, monster in enumerate(monster_list[monster_index]):	
 		monster.alive = True
 		monster.hp = monster.max_hp
@@ -148,7 +136,6 @@ def collide():
 			if click == True:
 				attack = True
 				target = monster_list[monster_index][count]
-
 
 #events
 event_index = 0
@@ -206,32 +193,9 @@ def game_event_2():
 
 		pygame.display.update()
 
-# def game_events():
-# 	global event_index
-# 	event_index = 0
-# 	inside_event = True
-# 	while inside_event:
-# 		clock.tick(fps)
-
-# 		screen.fill((105,105,105))
-# 		screen.blit(font.render('A crossroad makes you choose between a long, treacherous path, or a short dangerous one.', True, (0,0,128)), (0, 60))
-# 		screen.blit(font.render('(Press Q for long path, E for short path)', True, (0,0,128)), (0, 90))
-
-# 		for event in pygame.event.get():
-# 			if event.type == pygame.QUIT:
-# 				pygame.quit()
-# 				sys.exit()
-# 			if event.type == pygame.KEYDOWN:
-# 				if event.key == pygame.K_q:
-# 					event_index = 1
-# 					inside_event = False
-# 			if event.type == pygame.KEYDOWN:
-# 				if event.key == pygame.K_e:
-# 					event_index = 2
-# 					inside_event = False
-
-# 		pygame.display.update()
-
+game_event_list = []
+game_event_list.append(game_event_1)
+game_event_list.append(game_event_2)
 
 #drop item test
 inventory = []
@@ -286,17 +250,11 @@ while run:
 	#make sure mouse is visible
 	collide()
 	#---------------------------#
-
-	#---------------------------#
-	if hero.statpoints > 0:	
-		LoadInterface.draw_stat_background(screen, screen_height, bottom_panel, blue)
-	#---------------------------#
 	if monster_index == 2:
 		total_turns = 3
 	else:
 		total_turns = 4
 	#---------------------------#
-
 	#player action
 	if game_over == 0:
 		if hero.alive == True:
@@ -307,19 +265,25 @@ while run:
 
 					#attack
 					if attack == True and target != None and target.alive and action_index == 0:
-						hero.normal_attack(current_fighter, action_cooldown, target, experiencethreshold, damage_text_group)
+						hero.normal_attack(current_fighter, action_cooldown, target, experiencethreshold, damage_text_group, inventory)
 						Screen_Menus.drop_items(monster, hero, inventory)
+						if target.alive == False:
+							hero.gold += target.gold
 						current_fighter += 1
 						action_cooldown = 0
 
 					#fireball
 					if attack == True and target != None and target.alive and action_index == 1:
 						if hero.mp < 5:
-							hero.normal_attack(current_fighter, action_cooldown, target, experiencethreshold, damage_text_group)
+							hero.normal_attack(current_fighter, action_cooldown, target, experiencethreshold, damage_text_group, inventory)
 							Screen_Menus.drop_items(monster, hero, inventory)
+							if target.alive == False:
+								hero.gold += target.gold
 						else:
-							hero.fire_ball_attack(current_fighter, action_cooldown, target, monster, monster_list, monster_index, experiencethreshold, fire_ball_sprite_group, damage_text_group)
+							hero.fire_ball_attack(current_fighter, action_cooldown, target, monster, monster_list, monster_index, experiencethreshold, fire_ball_sprite_group, damage_text_group, inventory)
 							Screen_Menus.drop_items(monster, hero, inventory)
+							if target.alive == False:
+								hero.gold += target.gold
 						current_fighter += 1
 						action_cooldown = 0
 
@@ -358,16 +322,19 @@ while run:
 		if game_over == 1:
 			screen.blit(victory_img, ((screen_width / 2) - 120, 50))
 			if restart_button.draw():
+				hero.shield = 0
+				if 6 in inventory:
+					hero.guard(guard_sprite_group, damage_text_group)
 				random_event_index = random.randint(0,2)
 				stage_counter += 1
-				print(stage_counter)
+				monster_index = Map.platformer_menu(monster_index, hero)
+				print(monster_index)
+
 				if random_event_index == 0:
 					pass
-				if random_event_index == 1:
-					game_event_1()
-				if random_event_index == 2:
-					game_event_2()					
-				random_spawn()
+				else:
+					game_event_list[random_event_index]()			
+				start_spawn()
 				for i in range(len(monster_list)):
 					for monster in monster_list[i]:
 						monster.level_up_monster()
@@ -418,6 +385,8 @@ while run:
 					action_index = 0
 			if event.key == pygame.K_r:
 				Screen_Menus.options_menu(inventory)
+			if event.key == pygame.K_f:
+				Screen_Menus.shop_menu(inventory, hero)
 				
 	pygame.display.update()
 
