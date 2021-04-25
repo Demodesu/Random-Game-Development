@@ -1,4 +1,4 @@
-import pygame, sys, csv, random, math
+import pygame, sys, csv, random, math, Screen_Menus
 
 clock = pygame.time.Clock()
 
@@ -6,13 +6,22 @@ pygame.init()
 
 game_map = 0
 spawn_point_index = 1
+monster_encounter = False
+current_map_list = []
+current_pos_list = []
 
 #playformer loop
-def platformer_menu(monster_index, hero):
+def platformer_menu(monster_index, hero, inventory, monster_list):
 
 	global game_map
 	global spawn_point_index
+	global current_map_list
+	global current_pos_list
+
 	monster_index = 0
+	monster_encounter = False
+
+	current_map_list.append(game_map)
 
 	#all screen elements
 	screen_width = 800
@@ -37,13 +46,13 @@ def platformer_menu(monster_index, hero):
 
 	game_map_list = []
 	if game_map == 0:
-		screen_color_tuple = (173,216,230)
+		screen_color_tuple = (0,50,0)
 		with open('Maps/map_1.csv', 'r') as data:
 			data = csv.reader(data, delimiter = ',')
 			for row in data:
 				game_map_list.append(list(row))
 	if game_map == 1:
-		screen_color_tuple = (173,216,230)
+		screen_color_tuple = (0,50,0)
 		with open('Maps/map_2.csv', 'r') as data:
 			data = csv.reader(data, delimiter = ',')
 			for row in data:
@@ -55,17 +64,24 @@ def platformer_menu(monster_index, hero):
 			for row in data:
 				game_map_list.append(list(row))
 	if game_map == 3:
-		screen_color_tuple = (173,216,230)
+		screen_color_tuple = (0,50,0)
 		with open('Maps/map_4.csv', 'r') as data:
 			data = csv.reader(data, delimiter = ',')
 			for row in data:
 				game_map_list.append(list(row))
 	if game_map == 4:
-		screen_color_tuple = (173,216,230)
+		screen_color_tuple = (0,50,0)
 		with open('Maps/map_5.csv', 'r') as data:
 			data = csv.reader(data, delimiter = ',')
 			for row in data:
 				game_map_list.append(list(row))
+	if game_map == 5:
+		screen_color_tuple = (0,50,0)
+		with open('Maps/map_6.csv', 'r') as data:
+			data = csv.reader(data, delimiter = ',')
+			for row in data:
+				game_map_list.append(list(row))
+
 
 	screen_color_list = list(screen_color_tuple)
 
@@ -206,18 +222,47 @@ def platformer_menu(monster_index, hero):
 		def draw(self, monster_rect, tile_rects):
 			display.blit(self.monster_image, (monster_rect.x - 20, monster_rect.y - 50))
 
+	class Chest_Movement(Monster_Movement):
+		def __init__(self, monster_image, width, height):
+			super().__init__(monster_image, width, height)
+
+		def move(self, monster_x, monster_y, player_rect, tile_rects, monster_rect):
+			hit_list = []
+			for tile in tile_rects:
+				if monster_rect.colliderect(tile):
+					hit_list.append(tile)
+			for tile in hit_list:
+				monster_rect.bottom = tile.top
+			if monster_rect.bottom != tile.top:
+				monster_y += 10	
+
+			return monster_x, monster_y
+
+		def draw(self, monster_rect, tile_rects):
+			display.blit(self.monster_image, (monster_rect.x, monster_rect.y))
+
 	def spawn_monster():
-		roll_spawn = random.randint(0,100)
+		global current_map_list
+
 		spawn_list = []
-		spawn_list.append('slime')
-		if roll_spawn > 60:
+
+		#monster spawn
+		roll_spawn = random.randint(0,100)
+		if roll_spawn > 20:
+			spawn_list.append('slime')
+		roll_spawn = random.randint(0,100)	
+		if roll_spawn > 50 and game_map == 2:
 			spawn_list.append('zombie_boss')
-		else:
+		if roll_spawn > 35 and game_map == 1 or 3:
 			spawn_list.append('zombie')
-		if 'zombie' not in spawn_list:
-			roll_spawn = random.randint(0,100)
-			if roll_spawn > 50:
-				spawn_list.append('zombie')
+
+		#chest spawn
+		roll_spawn = random.randint(0,100) + hero.luck
+		if len(current_map_list) > 1 and roll_spawn > 60:
+			if current_map_list[-1] != current_map_list[0]:
+				spawn_list.append('chest')
+		if len(current_map_list) == 2:
+			del current_map_list[0]
 
 		return spawn_list
 
@@ -229,27 +274,41 @@ def platformer_menu(monster_index, hero):
 	slime_image = pygame.transform.scale(slime_image, (32, 32))
 	spawn_right = False
 	spawn_left = False
-	start_pos_dictonary_right = {'0': {'x': 50, 'y': 200}, '1': {'x': 50, 'y': 300}, '2': {'x': 50, 'y': 400}, '3': {'x': 50, 'y': 300}, '4': {'x': 50, 'y': 100}}
-	start_pos_dictonary_left = {'0': {'x': 700, 'y': 300}, '1': {'x': 700, 'y': 300}, '2': {'x': 700, 'y': 450}, '3': {'x': 700, 'y': 300}, '4': {'x': 700, 'y': 450}}
-
+	start_pos_dictonary_right = {'0': {'x': 50, 'y': 200}, '1': {'x': 50, 'y': 300}, '2': {'x': 50, 'y': 400}, '3': {'x': 50, 'y': 300}, '4': {'x': 50, 'y': 100}, '5': {'x': 50, 'y': 200}}
+	start_pos_dictonary_left = {'0': {'x': 700, 'y': 300}, '1': {'x': 700, 'y': 300}, '2': {'x': 700, 'y': 450}, '3': {'x': 700, 'y': 300}, '4': {'x': 700, 'y': 450}, '5': {'x': 700, 'y': 200}}
 	#zombie
 	zombie_image = pygame.image.load('Maps/Tiles5.png').convert_alpha()
 	zombie_image = pygame.transform.scale(zombie_image, (80, 80))
 	#zombie boss
 	zombie_boss_image = pygame.image.load('Maps/Tiles6.png').convert_alpha()
 	zombie_boss_image = pygame.transform.scale(zombie_boss_image, (80, 80))
+	#shop
+	shop_image = pygame.image.load('Maps/Shop.png').convert_alpha()
+	shop_image = pygame.transform.scale(shop_image, (150,100))
+	#chest
+	chest_image = pygame.image.load('Maps/Chest.png').convert_alpha()
 	#--------------------------rects-------------------------#
 	#hero
 	if spawn_point_index == 1:
-		player_rect = pygame.Rect(start_pos_dictonary_right[str(game_map)]['x'], start_pos_dictonary_right[str(game_map)]['y'], player_image.get_width() - 15, player_image.get_height())
+		if len(current_pos_list) != 0:
+			player_rect = pygame.Rect(current_pos_list[0], current_pos_list[-1], player_image.get_width() - 15, player_image.get_height())
+			current_pos_list.clear()
+		else:
+			player_rect = pygame.Rect(start_pos_dictonary_right[str(game_map)]['x'], start_pos_dictonary_right[str(game_map)]['y'], player_image.get_width() - 15, player_image.get_height())
 	else:
-		player_rect = pygame.Rect(start_pos_dictonary_left[str(game_map)]['x'], start_pos_dictonary_left[str(game_map)]['y'], player_image.get_width() - 15, player_image.get_height())		
+		if len(current_pos_list) != 0:
+			player_rect = pygame.Rect(current_pos_list[0], current_pos_list[-1], player_image.get_width() - 15, player_image.get_height())
+			current_pos_list.clear()
+		else:
+			player_rect = pygame.Rect(start_pos_dictonary_left[str(game_map)]['x'], start_pos_dictonary_left[str(game_map)]['y'], player_image.get_width() - 15, player_image.get_height())	
 	#slime
 	slime_x, slime_y = random.randint(0, 700), -50
 	#zombie
 	zombie_x, zombie_y = random.randint(0, 700), -50
 	#zombie boss
-	zombie_boss_x, zombie_boss_y = random.randint(0, 800), random.randint(0, 550)
+	zombie_boss_x, zombie_boss_y = random.randint(300, 500), random.randint(0, 250)
+	#chest
+	chest_x, chest_y = random.randint(0, 800), -50
 	#--------------------------------------------------------#	
 	turn_left = False
 	spawn_list = spawn_monster()
@@ -292,26 +351,34 @@ def platformer_menu(monster_index, hero):
 		if player_collisions['top']:
 			player_y_momentum += 1
 
-		if player_rect.x > screen_width - player_rect.width:
+		if player_rect.x > screen_width - player_rect.width - 5:
 			game_map += 1
-			if game_map > 4:
+			if game_map > 5:
 				game_map = 0
 			spawn_point_index = 1
 			running = False
-			monster_index = random.randint(0,2)
-			return monster_index
+			while True:
+				monster_index = random.randint(0,2)
+				if monster_index != 2:
+					break
+			monster_encounter = False
+			return monster_index, monster_encounter, game_map
 
 		if player_rect.x < 1:
 			game_map -= 1
 			if game_map < 0:
-				game_map = 4	
+				game_map = 5	
 			spawn_point_index = -1
 			running = False
-			monster_index = random.randint(0,2)
-			return monster_index
+			while True:
+				monster_index = random.randint(0,2)
+				if monster_index != 2:
+					break
+			monster_encounter = False
+			return monster_index, monster_encounter, game_map
 
 		#monster movement
-		if 'slime' in spawn_list:
+		if 'slime' in spawn_list and game_map != 5:
 			slime = Slime_Movement(slime_image, 32, 32)
 			slime_rect = pygame.Rect(slime_x, slime_y, 32, 32)
 			slime_x, slime_y = slime.move(slime_x, slime_y, player_rect, tile_rects, slime_rect)
@@ -319,48 +386,88 @@ def platformer_menu(monster_index, hero):
 		else:
 			slime_rect = pygame.Rect(-50, -50, 1, 1)
 
-		if 'zombie' in spawn_list:
+		if 'zombie' in spawn_list and game_map != 5:
 			zombie = Zombie_Movement(zombie_image, 32, 32)
 			zombie_rect = pygame.Rect(zombie_x, zombie_y, 32, 32)
 			zombie_x, zombie_y = zombie.move(zombie_x, zombie_y, player_rect, tile_rects, zombie_rect)
 			zombie.draw(zombie_rect, tile_rects)
 		else:
-			zombie_rect = pygame.Rect(-50, -50, 1, 1)
+			zombie_rect = pygame.Rect(-50, -50, 0, 0)
 
-		if 'zombie_boss' in spawn_list:
+		if 'zombie_boss' in spawn_list and game_map != 5:
 			zombie_boss = Zombie_Boss_Movement(zombie_boss_image, 32, 32)
 			zombie_boss_rect = pygame.Rect(zombie_boss_x, zombie_boss_y, 32, 32)
 			zombie_boss_x, zombie_boss_y = zombie_boss.move(zombie_boss_x, zombie_boss_y, player_rect, tile_rects, zombie_boss_rect)
 			zombie_boss.draw(zombie_boss_rect, tile_rects)
 		else:
-			zombie_boss_rect = pygame.Rect(-50, -50, 1, 1)
+			zombie_boss_rect = pygame.Rect(-50, -50, 0, 0)
+
+		if 'chest' in spawn_list and game_map != 5:
+			chest = Chest_Movement(chest_image, 50, 50)
+			chest_rect = pygame.Rect(chest_x, chest_y, 50, 50)
+			chest_x, chest_y = chest.move(chest_x, chest_y, player_rect, tile_rects, chest_rect)
+			chest.draw(chest_rect, tile_rects)
+		else:
+			chest_rect = pygame.Rect(-50, -50, 0, 0)
 
 		#hero drawing
 		display.blit(player_image, (player_rect.x, player_rect.y))
 
 		#collision encounter fading
-		if pygame.Rect.colliderect(player_rect, slime_rect) or pygame.Rect.colliderect(player_rect, zombie_rect) or pygame.Rect.colliderect(player_rect, zombie_boss_rect):
+		if pygame.Rect.colliderect(player_rect, slime_rect) or pygame.Rect.colliderect(player_rect, zombie_rect) or pygame.Rect.colliderect(player_rect, zombie_boss_rect) or pygame.Rect.colliderect(player_rect, chest_rect):
 			if screen_color_list[0] != 0:
-				screen_color_list[0] -= 5
+				screen_color_list[0] -= 2
 				if screen_color_list[0] < 0:
 					screen_color_list[0] = 0
 			if screen_color_list[1] != 0:
-				screen_color_list[1] -= 5
+				screen_color_list[1] -= 2
 				if screen_color_list[1] < 0:
 					screen_color_list[1] = 0
 			if screen_color_list[2] != 0:
-				screen_color_list[2] -= 5
+				screen_color_list[2] -= 2
 				if screen_color_list[2] < 0:
 					screen_color_list[2] = 0
 			screen_color_tuple = tuple(screen_color_list)
 			if screen_color_tuple == (0,0,0):
-				if pygame.Rect.colliderect(player_rect, slime_rect):
+				monster_collision_dictionary = {'slime': slime_rect, 'zombie': zombie_rect, 'zombie_boss': zombie_boss_rect}
+				if pygame.Rect.colliderect(player_rect, monster_collision_dictionary['slime']):
 					monster_index = 0
-				if pygame.Rect.colliderect(player_rect, zombie_rect):
+
+					current_pos_list.append(slime_x)
+					current_pos_list.append(slime_y)	
+
+					monster_encounter = True
+					running = False
+				if pygame.Rect.colliderect(player_rect, monster_collision_dictionary['zombie']):
 					monster_index = 1
-				if pygame.Rect.colliderect(player_rect, zombie_boss_rect):
+
+					current_pos_list.append(zombie_x)
+					current_pos_list.append(zombie_y)	
+
+					monster_encounter = True
+					running = False
+				if pygame.Rect.colliderect(player_rect, monster_collision_dictionary['zombie_boss']):
 					monster_index = 2
-				running = False
+
+					current_pos_list.append(zombie_boss_x)
+					current_pos_list.append(zombie_boss_y)					
+
+					monster_encounter = True
+					running = False
+				if pygame.Rect.colliderect(player_rect, chest_rect):
+					monster_index = -1
+					hero.gold += 200 + (hero.level * 4)
+					roll_obtain_item = random.randint(0,100)
+					if roll_obtain_item > 70:
+						roll_obtain_item_index = random.randint(0,8)
+						if roll_obtain_item_index not in inventory:
+							inventory.append(roll_obtain_item_index)	
+
+					current_pos_list.append(chest_x)
+					current_pos_list.append(chest_y - 10)
+
+					monster_encounter = True
+					running = False							
 
 		#check for events
 		for event in pygame.event.get(): 
@@ -379,6 +486,11 @@ def platformer_menu(monster_index, hero):
 						player_y_momentum = -8
 				if event.key == pygame.K_s:
 					player_y_momentum = 4
+				if event.key == pygame.K_f and game_map == 5:
+					Screen_Menus.shop_menu(inventory, hero, monster_list, monster_index)	
+				if event.key == pygame.K_r:
+					Screen_Menus.options_menu(inventory, monster_list, monster_index)
+
 			if event.type == pygame.KEYUP:
 				if event.key == pygame.K_d:
 					moving_right = False
@@ -387,9 +499,13 @@ def platformer_menu(monster_index, hero):
 					player_image = pygame.transform.flip(player_image, True, False)
 		surf = pygame.transform.scale(display, screen_dimension)
 		screen.blit(surf, (0, 0))
+		if game_map == 5:
+			screen.blit(shop_image, ((screen_width / 2) - (150 / 2), 150))
 		#pygame.draw.rect(screen,(255,0,0),zombie_rect,2) 
 		pygame.display.update() # update display
 		clock.tick(60)
 
 	if running == False:
-		return monster_index
+		return monster_index, monster_encounter, game_map
+
+#print

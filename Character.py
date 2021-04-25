@@ -1,20 +1,21 @@
 import math, pygame, random, sys
 
+pygame.init()
+
 bottom_panel = 150
 screen_width = 800
 screen_height = 400 + bottom_panel
 screen = pygame.display.set_mode((screen_width,screen_height))
 statbutton_img = pygame.image.load('Images/Icon/StatButton.png').convert_alpha()
-damage_font = pygame.font.SysFont('Minecraft', 40)
+damage_font = pygame.font.Font('Kyrou_7_Wide_Bold.ttf', 25)
 #define colors
 red = (255,0,0)
 green = (0,255,0)
 blue = (0,0,255)
 yellow = (255,255,0)
 
-
 class Character():
-	def __init__(self, x, y, name, max_hp, max_mp, level, experience, strength, intelligence, defense, luck, evasion, accuracy, shield, health_potion, gold):
+	def __init__(self, x, y, name, max_hp, max_mp, level, experience, strength, intelligence, defense, luck, evasion, accuracy, shield, health_potion, gold, speed, hp_regen, mp_regen):
 		#defaults
 		self.x = x
 		self.y = y
@@ -23,10 +24,12 @@ class Character():
 		self.start_max_hp = max_hp
 		self.max_hp = max_hp
 		self.hp = max_hp
+		self.hp_regen = hp_regen
 		#mana
 		self.start_max_mp = max_mp
 		self.max_mp = max_mp
 		self.mp = max_mp
+		self.mp_regen = mp_regen
 		#start stats 
 		self.start_strength = strength
 		self.start_intelligence = intelligence
@@ -54,6 +57,7 @@ class Character():
 		self.alive = True
 		self.shield = shield
 		self.gold = gold
+		self.speed = speed
 		#hitbox
 	#---------------------------------------------------------#
 	#update and draw
@@ -86,12 +90,46 @@ class Character():
 		self.frame_index = 0
 		self.update_time = pygame.time.get_ticks()
 
-	def attack(self, target, damage_text_group):
-		randdamage = random.randint(-3,3)
+	def attack(self, target, damage_text_group, inventory):
+		if self.accuracy > target.evasion:
+			if self.accuracy - target.evasion > 10: 
+				randdamage = random.randint(3, 6)				
+			else:
+				randdamage = random.randint(-3 + math.floor((self.accuracy - target.evasion) / 2),3 + math.floor((self.accuracy - target.evasion) / 2))
+		else:
+			if self.accuracy - target.evasion < 10:
+				randdamage = random.randint(-3,0)
+			else:
+				randdamage = random.randint(-3,3)
+
+		roll_crit_chance = random.randint(0,100)
+		if roll_crit_chance + self.luck > 80:
+			randdamage = math.floor(abs(randdamage) * 1.5)
+
 		if randdamage + self.strength - target.defense <= 0:
 			damage = 0
 		else:
 			damage = randdamage + self.strength - target.defense
+
+		if 7 in inventory:
+			if self.shield > 0:
+				if self.shield - math.ceil(target.defense * 0.25) + math.ceil(damage * 0.15)  >= 0:
+					self.shield -= math.ceil(target.defense * 0.25) + math.ceil(damage * 0.15) 
+					damage_text = Damage_Text((self.hitbox.x + self.hitbox.width / 2), self.hitbox.y - 30, '0', red)
+				else:
+					self.hp -= (self.shield - math.ceil(target.defense * 0.25) + math.ceil(damage * 0.15)) * -1
+					self.shield = 0
+					damage_text = Damage_Text((self.hitbox.x + self.hitbox.width / 2), self.hitbox.y - 30, str((self.shield - math.ceil(target.defense * 0.25) + math.ceil(damage * 0.15)) * -1), red)
+			else:
+				self.hp -= math.ceil(target.defense * 0.25) + math.ceil(damage * 0.15) 
+				damage_text = Damage_Text((self.hitbox.x + self.hitbox.width / 2), self.hitbox.y - 30, str(math.ceil(target.defense * 0.25) + math.ceil(damage * 0.15)), red)
+			damage_text_group.add(damage_text)
+
+			if self.hp < 1:
+				self.hp = 0
+				self.alive = False
+				self.death()
+			
 		if target.shield > 0:
 			if target.shield - math.floor(damage) >= 0:
 				target.shield -= math.floor(damage)
@@ -104,6 +142,7 @@ class Character():
 			target.hp -= math.floor(damage)
 			damage_text = Damage_Text((target.hitbox.x + target.hitbox.width / 2), target.hitbox.y, str(math.floor(damage)), red)
 		damage_text_group.add(damage_text)
+
 		#run target hurt animation
 		target.hurt()
 		#check if target is dead
@@ -111,21 +150,22 @@ class Character():
 			target.hp = 0
 			target.alive = False
 			target.death()
+
 		#set variables to attack animation
 		self.action = 1
 		self.frame_index = 0
 		self.update_time = pygame.time.get_ticks()
 
-	def guard(self, guard_sprite_group, damage_text_group):
+	def guard(self, guard_sprite_group, damage_text_group, guard_heal_active):
 		if self.shield > self.max_hp / 2:
-			damage_text = Damage_Text((self.hitbox.x + self.hitbox.width / 2), self.hitbox.y, '0', yellow)
+			shield_text = Damage_Text((self.hitbox.x + self.hitbox.width / 2), self.hitbox.y, '0', yellow)
 			pass
 		else:
-			self.shield += self.max_hp / 4 	
-			damage_text = Damage_Text((self.hitbox.x + self.hitbox.width / 2), self.hitbox.y, str(self.max_hp / 4), yellow)
+			self.shield += math.floor((self.max_hp / 10) + (self.defense / 6))
+			shield_text = Damage_Text((self.hitbox.x + self.hitbox.width / 2), self.hitbox.y - 30, 'Guard ' + str(math.floor((self.max_hp / 10) + (self.defense / 6))), yellow)
 		guard_animation = Guard_Images((self.hitbox.x + self.hitbox.width / 2), self.hitbox.y)
 		guard_sprite_group.add(guard_animation)
-		damage_text_group.add(damage_text)
+		damage_text_group.add(shield_text)
 
 	def hurt(self):
 		#set variables to attack animation
@@ -140,7 +180,7 @@ class Character():
 		self.update_time = pygame.time.get_ticks()
 	#---------------------------------------------------------#
 	#level up
-	def level_up_monster(self):
+	def level_up_monster(self, hero):
 		self.max_hp += random.randint(1,3)
 		self.hp = self.max_hp
 		self.experience += self.level * 2
@@ -150,11 +190,25 @@ class Character():
 		self.luck += random.randint(0, 2)
 		self.accuracy += random.randint(0, 2)
 		self.evasion += random.randint(0, 2)
+		if self.level % 5 == 0:
+			self.speed += 1
+		if self.strength % 8 == 0:
+			self.hp_regen += 1
+		if hero.strength > (hero.luck + hero.evasion + hero.intelligence + hero.accuracy):
+			self.speed += 1
+		if hero.luck > (hero.strength + hero.evasion + hero.intelligence + hero.accuracy):
+			self.speed += 1
+		if hero.evasion > (hero.luck + hero.strength + hero.intelligence + hero.accuracy):
+			self.speed += 1
+		if hero.intelligence > (hero.luck + hero.evasion + hero.strength + hero.accuracy):
+			self.speed += 1
+		if hero.accuracy > (hero.luck + hero.evasion + hero.intelligence + hero.strength):
+			self.speed += 1
 	#---------------------------------------------------------#
 
 class Hero(Character):
-	def	__init__(self, x, y, name, max_hp, max_mp, level, experience, statpoints, strength, intelligence, defense, luck, evasion, accuracy, shield, mana_potion, health_potion, gold):
-		super().__init__(x, y, name, max_hp, max_mp, level, experience, strength, intelligence, defense, luck, evasion, accuracy, shield, health_potion, gold)
+	def	__init__(self, x, y, name, max_hp, max_mp, level, experience, statpoints, strength, intelligence, defense, luck, evasion, accuracy, shield, mana_potion, health_potion, gold, speed, hp_regen, mp_regen):
+		super().__init__(x, y, name, max_hp, max_mp, level, experience, strength, intelligence, defense, luck, evasion, accuracy, shield, health_potion, gold, speed, hp_regen, mp_regen)
 		#start stat points
 		self.start_statpoints = statpoints
 		#current stat points
@@ -187,6 +241,7 @@ class Hero(Character):
 		self.rect.center = (x,y)
 		self.hitbox = pygame.rect.Rect(self.x - 70, self.y - 50, 100, 200)
 
+	#skills
 	def skill(self):
 		#set variables to attack animation
 		self.action = 4
@@ -195,17 +250,45 @@ class Hero(Character):
 
 	def fire_ball(self, target, damage_text_group, inventory):
 		randdamage = random.randint(-3,3)
-		if randdamage + self.intelligence <= 0:
+		if randdamage + (self.intelligence * 2) <= 0:
 			damage = 0
 		else:
-			damage = randdamage + self.intelligence
+			damage = randdamage + (self.intelligence * 2)
 		target.hp -= math.floor(damage)
 		damage_text = Damage_Text((target.hitbox.x + target.hitbox.width / 2), target.hitbox.y, str(math.floor(damage)), red)
 		damage_text_group.add(damage_text)
 		if 5 in inventory:
 			target.hp -= math.floor(damage)
 			damage_text_condensed_lightning = Damage_Text((target.hitbox.x + target.hitbox.width / 2), target.hitbox.y - 30, str(math.floor(damage)), red)
-			damage_text_group.add(damage_text_condensed_lightning)			
+			damage_text_group.add(damage_text_condensed_lightning)
+
+		#run target hurt animation
+		target.hurt()
+		#check if target is dead
+		if target.hp < 1:
+			target.hp = 0
+			target.alive = False
+			target.death()
+
+		#set variables to attack animation
+		self.action = 4
+		self.frame_index = 0
+		self.update_time = pygame.time.get_ticks()
+
+	def mini_fire_ball(self, target, damage_text_group, inventory):
+		randdamage = random.randint(-3,3)
+		if randdamage + (self.intelligence) <= 0:
+			damage = 0
+		else:
+			damage = randdamage + (self.intelligence)
+		target.hp -= math.floor(damage)
+		damage_text = Damage_Text((target.hitbox.x + target.hitbox.width / 2), target.hitbox.y, str(math.floor(damage)), red)
+		damage_text_group.add(damage_text)
+		if 5 in inventory:
+			target.hp -= math.floor(damage)
+			damage_text_condensed_lightning = Damage_Text((target.hitbox.x + target.hitbox.width / 2), target.hitbox.y - 30, str(math.floor(damage)), red)
+			damage_text_group.add(damage_text_condensed_lightning)
+
 		#run target hurt animation
 		target.hurt()
 		#check if target is dead
@@ -228,17 +311,29 @@ class Hero(Character):
 			self.level += 1
 			nextexperience = self.experiencethreshold[-1] * 3 # or experiencethreshold[0]
 			self.experiencethreshold.append(nextexperience)
-			self.statpoints += 5
-			self.max_mp += 5
-			self.mp += 5
+			self.statpoints += 3
+			self.max_mp += 2.5
+			self.mp += 2.5
+			if self.level % 5 == 0:
+				self.speed += 1
+			if self.intelligence % 5 == 0:
+				self.mp_regen += 1
 
 	def str_up_button(self):
 		self.strength += 1
 		self.statpoints -= 1
+		if self.strength % 10 == True:
+			self.max_hp += 5
+			self.hp += 5
+			self.hp_regen += 1
 
 	def int_up_button(self):
 		self.intelligence += 1
 		self.statpoints -= 1
+		if self.intelligence % 10 == True:
+			self.max_mp += 5
+			self.mp += 5
+			self.mp_regen += 1
 
 	def luc_up_button(self):
 		self.luck += 1
@@ -251,9 +346,25 @@ class Hero(Character):
 	def eva_up_button(self):
 		self.evasion += 1
 		self.statpoints -= 1
+		if self.evasion % 10 == True:
+			self.speed += 1
 
 	def attack(self, target, damage_text_group, inventory):
-		randdamage = random.randint(-3,3)
+		if self.accuracy > target.evasion:
+			if self.accuracy - target.evasion > 10: 
+				randdamage = random.randint(3, 6)				
+			else:
+				randdamage = random.randint(-3 + math.floor((self.accuracy - target.evasion) / 2),3 + math.floor((self.accuracy - target.evasion) / 2))
+		else:
+			if self.accuracy - target.evasion < 10:
+				randdamage = random.randint(-3,0)
+			else:
+				randdamage = random.randint(-3,3)
+
+		roll_crit_chance = random.randint(0,100)
+		if roll_crit_chance + self.luck > 80:
+			randdamage = math.floor(abs(randdamage) * 1.5)
+
 		if randdamage + self.strength - target.defense <= 0:
 			damage = 0
 		else:
@@ -272,11 +383,13 @@ class Hero(Character):
 		damage_text_group.add(damage_text)
 
 		if 4 in inventory:
-			if self.max_hp - self.hp > math.floor(target.max_hp * 0.1) + math.floor(self.strength * 0.1):
-				heal_amount = math.floor(target.max_hp * 0.1) + math.floor(self.strength * 0.1)
+			if self.max_hp - self.hp > math.ceil(damage * 0.1):
+				heal_amount = math.ceil(damage * 0.1)
 			else:
 				heal_amount = self.max_hp - self.hp
 			self.hp += heal_amount
+			heal_text = Damage_Text((self.hitbox.x + self.hitbox.width / 2), self.hitbox.y - 30, str(heal_amount), green)
+			damage_text_group.add(heal_text)
 
 		#run target hurt animation
 		target.hurt()
@@ -290,6 +403,171 @@ class Hero(Character):
 		self.frame_index = 0
 		self.update_time = pygame.time.get_ticks()
 
+	def cleave(self, target, damage_text_group, inventory, monster_list, monster_index, experiencethreshold, cleave_active, cleave_sprite_group):
+
+		for count, monster in enumerate(monster_list[monster_index]):
+			target = monster
+			if target.alive != False:
+
+				if self.accuracy > target.evasion:
+					if self.accuracy - target.evasion > 10: 
+						randdamage = random.randint(3, 6)				
+					else:
+						randdamage = random.randint(-3 + math.floor((self.accuracy - target.evasion) / 2),3 + math.floor((self.accuracy - target.evasion) / 2))
+				else:
+					if self.accuracy - target.evasion < 10:
+						randdamage = random.randint(-3,0)
+					else:
+						randdamage = random.randint(-3,3)
+
+				roll_crit_chance = random.randint(0,100)
+				if roll_crit_chance + self.luck > 80:
+					randdamage = math.floor(abs(randdamage) * 1.5)
+
+				if randdamage + math.floor(self.strength * 0.75) - target.defense <= 0:
+					damage = 0
+				else:
+					damage = randdamage + math.floor(self.strength * 0.75) - target.defense
+				if target.shield > 0:
+					if target.shield - math.floor(damage) >= 0:
+						target.shield -= math.floor(damage)
+						damage_text = Damage_Text((target.hitbox.x + target.hitbox.width / 2), target.hitbox.y, '0', red)
+					else:
+						target.hp -= (target.shield - math.floor(damage)) * -1
+						target.shield = 0
+						damage_text = Damage_Text((target.hitbox.x + target.hitbox.width / 2), target.hitbox.y, str((target.shield - math.floor(damage)) * -1), red)
+				else:
+					target.hp -= math.floor(damage)
+					damage_text = Damage_Text((target.hitbox.x + target.hitbox.width / 2), target.hitbox.y, str(math.floor(damage)), red)
+				damage_text_group.add(damage_text)
+
+				if target.alive == True:
+					if 4 in inventory:
+						if self.max_hp - self.hp > math.ceil(damage * 0.1):
+							heal_amount = math.ceil(damage * 0.1)
+						else:
+							heal_amount = self.max_hp - self.hp
+						self.hp += heal_amount
+						heal_text = Damage_Text((self.hitbox.x + self.hitbox.width / 2), self.hitbox.y - 30 * (monster_list[monster_index].index(monster) + 1), str(heal_amount), green)
+						damage_text_group.add(heal_text)
+
+				#run target hurt animation
+				target.hurt()
+				#check if target is dead
+				if target.hp < 1:
+					target.hp = 0
+					target.alive = False
+					target.death()
+
+				if target.alive == False:
+					self.experience += target.experience - math.floor(random.randint(0,2) * 1.5)
+					self.level_up_hero(experiencethreshold)
+
+		cleave_animation = Cleave_Images((target.hitbox.x + target.hitbox.width / 2), target.hitbox.y + (target.hitbox.height / 2))
+		cleave_sprite_group.add(cleave_animation)
+
+		self.hp -= math.floor(self.max_hp / 10)
+		health_lost_text = Damage_Text((self.hitbox.x + self.hitbox.width / 2), self.hitbox.y, str(math.floor(self.max_hp / 10)), red)
+		damage_text_group.add(health_lost_text)
+
+		if self.hp < 1:
+			self.hp = 0
+			self.alive = False
+			self.death()
+
+		if self.alive == True:
+			#set variables to attack animation
+			self.action = 1
+			self.frame_index = 0
+			self.update_time = pygame.time.get_ticks()
+
+	def zombie_stab(self, target, damage_text_group, inventory, monster_list, monster_index, experiencethreshold, zombie_stab_active, zombie_stab_sprite_group):
+		if target.alive != False:
+
+			if self.accuracy > target.evasion:
+				if self.accuracy - target.evasion > 10: 
+					randdamage = random.randint(3, 6)				
+				else:
+					randdamage = random.randint(-3 + math.floor((self.accuracy - target.evasion) / 2),3 + math.floor((self.accuracy - target.evasion) / 2))
+			else:
+				if self.accuracy - target.evasion < 10:
+					randdamage = random.randint(-3,0)
+				else:
+					randdamage = random.randint(-3,3)
+
+			roll_crit_chance = random.randint(0,100)
+			if roll_crit_chance + self.luck > 80:
+				randdamage = math.floor(abs(randdamage) * 1.5)
+
+			if randdamage + math.floor(self.strength * 2) <= 0:
+				damage = 0
+			else:
+				damage = randdamage + math.floor(self.strength * 2)
+
+			target.hp -= math.floor(damage)
+			damage_text = Damage_Text((target.hitbox.x + target.hitbox.width / 2), target.hitbox.y, str(math.floor(damage)), red)
+			damage_text_group.add(damage_text)
+
+			if target.alive == True:
+				if 4 in inventory:
+					if self.max_hp - self.hp > math.ceil(damage * 0.1):
+						heal_amount = math.ceil(damage * 0.1)
+					else:
+						heal_amount = self.max_hp - self.hp
+					self.hp += heal_amount
+					heal_text = Damage_Text((self.hitbox.x + self.hitbox.width / 2), self.hitbox.y - 30 * (monster_list[monster_index].index(target) + 1), str(heal_amount), green)
+					damage_text_group.add(heal_text)
+
+			#run target hurt animation
+			target.hurt()
+			#check if target is dead
+			if target.hp < 1:
+				target.hp = 0
+				target.alive = False
+				target.death()
+
+			if target.alive == False:
+				self.experience += target.experience - math.floor(random.randint(0,2) * 1.5)
+				self.level_up_hero(experiencethreshold)
+
+		zombie_stab_animation = Zombie_Stab_Images((target.hitbox.x + target.hitbox.width / 2), target.hitbox.y + (target.hitbox.height / 2))
+		zombie_stab_sprite_group.add(zombie_stab_animation)
+
+		self.hp -= math.floor(self.max_hp / 6)
+		health_lost_text = Damage_Text((self.hitbox.x + self.hitbox.width / 2), self.hitbox.y, str(math.floor(self.max_hp / 6)), red)
+		damage_text_group.add(health_lost_text)
+
+		if self.hp < 1:
+			self.hp = 0
+			self.alive = False
+			self.death()
+
+		if self.alive == True:
+			#set variables to attack animation
+			self.action = 4
+			self.frame_index = 0
+			self.update_time = pygame.time.get_ticks()
+
+	def guard(self, guard_sprite_group, damage_text_group, guard_heal_active):
+		if self.shield > self.max_hp / 2:
+			shield_text = Damage_Text((self.hitbox.x + self.hitbox.width / 2), self.hitbox.y, '0', yellow)
+			pass
+		else:
+			self.shield += math.floor((self.max_hp / 6) + (self.defense / 4))
+			shield_text = Damage_Text((self.hitbox.x + self.hitbox.width / 2), self.hitbox.y, str(math.floor((self.max_hp / 6) + (self.defense / 4))), yellow)
+		guard_animation = Guard_Images((self.hitbox.x + self.hitbox.width / 2), self.hitbox.y)
+		guard_sprite_group.add(guard_animation)
+		damage_text_group.add(shield_text)
+		if guard_heal_active == True:
+			if self.max_hp - self.hp > math.floor((self.max_hp / 8) + (self.defense / 4)):
+				heal_amount = math.floor((self.max_hp / 8) + (self.defense / 4))
+			else:
+				heal_amount = self.max_hp - self.hp
+			self.hp += heal_amount
+			heal_text = Damage_Text((self.hitbox.x + self.hitbox.width / 2), self.hitbox.y - 30, str(heal_amount), green)			
+			damage_text_group.add(heal_text)
+
+	#animation and effects
 	def normal_attack(self, current_fighter, action_cooldown, target, experiencethreshold, damage_text_group, inventory):
 		self.attack(target, damage_text_group, inventory)
 		if target.alive == False:
@@ -302,7 +580,7 @@ class Hero(Character):
 			if monster.alive == True:
 				alive_monster += 1
 
-		if alive_monster == 2  and self.mp >= 10:
+		if alive_monster == 2 and self.mp >= 10:
 			for monster in monster_list[monster_index]:
 				target = monster
 				self.fire_ball(target, damage_text_group, inventory)
@@ -322,9 +600,33 @@ class Hero(Character):
 				self.level_up_hero(experiencethreshold)	
 			self.mp -= 5
 
+	def mini_fire_ball_attack(self, current_fighter, action_cooldown, target, monster, monster_list, monster_index, experiencethreshold, fire_ball_sprite_group, damage_text_group, inventory):
+		alive_monster = 0
+		for monster in monster_list[monster_index]:
+			if monster.alive == True:
+				alive_monster += 1
+
+		if alive_monster == 2:
+			for monster in monster_list[monster_index]:
+				target = monster
+				self.mini_fire_ball(target, damage_text_group, inventory)
+				fire_ball_animation = Fire_Ball_Images(target.x, target.y)
+				fire_ball_sprite_group.add(fire_ball_animation)
+				if target.alive == False:
+					self.experience += target.experience - math.floor(random.randint(0,2) * 1.5)
+					self.level_up_hero(experiencethreshold)	
+
+		else:
+			self.mini_fire_ball(target, damage_text_group, inventory)
+			fire_ball_animation = Fire_Ball_Images(target.x, target.y)
+			fire_ball_sprite_group.add(fire_ball_animation)							
+			if target.alive == False:
+				self.experience += target.experience - math.floor(random.randint(0,2) * 1.5)
+				self.level_up_hero(experiencethreshold)	
+
 class Slime(Character):
-	def __init__(self, x, y, name, max_hp, max_mp, level, experience, strength, intelligence, defense, luck, evasion, accuracy, shield, health_potion, gold):
-		super().__init__(x, y, name, max_hp, max_mp, level, experience, strength, intelligence, defense, luck, evasion, accuracy, shield, health_potion, gold)
+	def __init__(self, x, y, name, max_hp, max_mp, level, experience, strength, intelligence, defense, luck, evasion, accuracy, shield, health_potion, gold, speed, hp_regen, mp_regen):
+		super().__init__(x, y, name, max_hp, max_mp, level, experience, strength, intelligence, defense, luck, evasion, accuracy, shield, health_potion, gold, speed, hp_regen, mp_regen)
 		self.animation_list = [] #this is the slime's animation list -> slime.animation_list[]
 		self.frame_index = 0
 		self.start_frame_index = 0
@@ -349,9 +651,31 @@ class Slime(Character):
 		self.rect.center = (x,y)
 		self.hitbox = pygame.rect.Rect(self.x - 25, self.y - 15, 50, 50)
 
+	def armor_corrosion(self, target, damage_text_group, inventory):
+		if target.shield > 0:
+			shield_destroyed = target.shield
+			target.shield = 0
+			damage_text = Damage_Text((target.hitbox.x + target.hitbox.width / 2), target.hitbox.y, str(shield_destroyed), yellow)
+
+		damage_text_group.add(damage_text)
+		damage_text = Damage_Text((self.hitbox.x + self.hitbox.width / 2), target.hitbox.y, 'Armor Corrosion', yellow)	
+		damage_text_group.add(damage_text)	
+		#run target hurt animation
+		target.hurt()
+		#check if target is dead
+		if target.hp < 1:
+			target.hp = 0
+			target.alive = False
+			target.death()
+
+		#set variables to attack animation
+		self.action = 1
+		self.frame_index = 0
+		self.update_time = pygame.time.get_ticks()
+
 class Zombie(Character):
-	def __init__(self, x, y, name, max_hp, max_mp, level, experience, strength, intelligence, defense, luck, evasion, accuracy, shield, health_potion, gold):
-		super().__init__(x, y, name, max_hp, max_mp, level, experience, strength, intelligence, defense, luck, evasion, accuracy, shield, health_potion, gold)
+	def __init__(self, x, y, name, max_hp, max_mp, level, experience, strength, intelligence, defense, luck, evasion, accuracy, shield, health_potion, gold, speed, hp_regen, mp_regen):
+		super().__init__(x, y, name, max_hp, max_mp, level, experience, strength, intelligence, defense, luck, evasion, accuracy, shield, health_potion, gold, speed, hp_regen, mp_regen)
 		self.animation_list = [] #this is the zombie's animation list -> slime.animation_list[]
 		self.frame_index = 0
 		self.start_frame_index = 0
@@ -377,9 +701,30 @@ class Zombie(Character):
 		self.rect.center = (x,y)
 		self.hitbox = pygame.rect.Rect(self.x - 50, self.y - 50, 100, 200)
 
+	def toxic_bile(self, target, damage_text_group, inventory):
+		target.hp -= math.ceil(self.strength / 3)
+
+		damage_text = Damage_Text((target.hitbox.x + target.hitbox.width / 2), target.hitbox.y, str(math.ceil(self.strength / 3)), red)	
+		damage_text_group.add(damage_text)		
+		damage_text = Damage_Text((self.hitbox.x + self.hitbox.width / 2), target.hitbox.y, 'Toxic Bile', yellow)	
+		damage_text_group.add(damage_text)	
+
+		#run target hurt animation
+		target.hurt()
+		#check if target is dead
+		if target.hp < 1:
+			target.hp = 0
+			target.alive = False
+			target.death()
+
+		#set variables to attack animation
+		self.action = 1
+		self.frame_index = 0
+		self.update_time = pygame.time.get_ticks()
+
 class Zombie_Boss(Character):
-	def __init__(self, x, y, name, max_hp, max_mp, level, experience, strength, intelligence, defense, luck, evasion, accuracy, shield, health_potion, gold):
-		super().__init__(x, y, name, max_hp, max_mp, level, experience, strength, intelligence, defense, luck, evasion, accuracy, shield, health_potion, gold)
+	def __init__(self, x, y, name, max_hp, max_mp, level, experience, strength, intelligence, defense, luck, evasion, accuracy, shield, health_potion, gold, speed, hp_regen, mp_regen):
+		super().__init__(x, y, name, max_hp, max_mp, level, experience, strength, intelligence, defense, luck, evasion, accuracy, shield, health_potion, gold, speed, hp_regen, mp_regen)
 		self.animation_list = [] #this is the zombie's animation list -> slime.animation_list[]
 		self.frame_index = 0
 		self.start_frame_index = 0
@@ -461,6 +806,62 @@ class Guard_Images(pygame.sprite.Sprite):
 		if self.frame_index >= len(self.animation_list):
 			self.kill()
 
+class Cleave_Images(pygame.sprite.Sprite):
+	def __init__(self, x, y):
+		pygame.sprite.Sprite.__init__(self)
+		self.animation_list = []
+		self.frame_index = 0
+		self.update_time = pygame.time.get_ticks()	
+		for i in range(6):
+			img = pygame.image.load(f'Images/Icon/Cleave/{i}.png').convert_alpha()
+			img = pygame.transform.scale(img, (img.get_width() * 5, img.get_height() * 2))
+			self.animation_list.append(img)
+		self.image = self.animation_list[self.frame_index]
+		self.rect = self.image.get_rect()
+		self.rect.center = (x,y)
+
+	def update(self):
+		#animation cooldown in milliseconds
+		animation_cooldown = 100
+		#handle animation
+		#update image
+		self.image = self.animation_list[self.frame_index]	
+		#check if enough time has passes since last update
+		if pygame.time.get_ticks() - self.update_time > animation_cooldown:
+			self.update_time = pygame.time.get_ticks()
+			self.frame_index += 1
+		#if animation runs out reset to the start
+		if self.frame_index >= len(self.animation_list):
+			self.kill()
+
+class Zombie_Stab_Images(pygame.sprite.Sprite):
+	def __init__(self, x, y):
+		pygame.sprite.Sprite.__init__(self)
+		self.animation_list = []
+		self.frame_index = 0
+		self.update_time = pygame.time.get_ticks()	
+		for i in range(4):
+			img = pygame.image.load(f'Images/Icon/Zombie_Stab/{i}.png').convert_alpha()
+			img = pygame.transform.scale(img, (img.get_width() * 5, img.get_height() * 3))
+			self.animation_list.append(img)
+		self.image = self.animation_list[self.frame_index]
+		self.rect = self.image.get_rect()
+		self.rect.center = (x,y)
+
+	def update(self):
+		#animation cooldown in milliseconds
+		animation_cooldown = 100
+		#handle animation
+		#update image
+		self.image = self.animation_list[self.frame_index]	
+		#check if enough time has passes since last update
+		if pygame.time.get_ticks() - self.update_time > animation_cooldown:
+			self.update_time = pygame.time.get_ticks()
+			self.frame_index += 1
+		#if animation runs out reset to the start
+		if self.frame_index >= len(self.animation_list):
+			self.kill()
+
 class Damage_Text(pygame.sprite.Sprite):
 	def __init__(self, x, y, damage, color):
 		pygame.sprite.Sprite.__init__(self)
@@ -474,17 +875,17 @@ class Damage_Text(pygame.sprite.Sprite):
 		self.rect.y -= 1
 		#delete text after few counters
 		self.counter += 1
-		if self.counter > 50:
+		if self.counter > 65:
 			self.kill()
 
 def Random_Stats_Hero(random_stats_list):
 	while True:
-		start_random_integer = 50
-		start_random_strength = random.randint(10, 15)
-		start_random_intelligence = random.randint(10, 15)
-		start_random_accuracy = random.randint(0, 10)
-		start_random_evasion = random.randint(0, 10)
-		start_random_luck = random.randint(0, 10)
+		start_random_integer = 33
+		start_random_strength = random.randint(5, 10)
+		start_random_intelligence = random.randint(5, 10)
+		start_random_accuracy = random.randint(0, 5)
+		start_random_evasion = random.randint(0, 5)
+		start_random_luck = random.randint(0, 3)
 		if start_random_integer - 5 < start_random_luck + start_random_evasion + start_random_accuracy + start_random_strength + start_random_intelligence < start_random_integer:
 			random_stats_list.append(start_random_strength)
 			random_stats_list.append(start_random_intelligence)
@@ -495,8 +896,8 @@ def Random_Stats_Hero(random_stats_list):
 
 def Random_Stats_Monsters(random_stats_list_monsters):
 	while True:
-		start_random_integer = 15
-		start_random_strength = random.randint(3, 5)
+		start_random_integer = 10
+		start_random_strength = random.randint(2, 3)
 		start_random_intelligence = random.randint(0, 3)
 		start_random_accuracy = random.randint(0, 3)
 		start_random_evasion = random.randint(0, 3)
