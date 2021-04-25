@@ -1,4 +1,4 @@
-import math, pygame, random, sys, csv, Load_Interface, Character, Bars, Screen_Menus, Map, Events, Level_Events
+import math, pygame, random, sys, csv, Load_Interface, Character, Bars, Screen_Menus, Map, Events, Level_Events, Speed_Stamina
 
 pygame.init()
 
@@ -45,32 +45,34 @@ background_img = pygame.transform.scale(background_img,(800,400))
 panel_img = pygame.image.load('Images/Icon/Panel.png').convert_alpha()
 sword_img = pygame.image.load('Images/Icon/SwordButton.png').convert_alpha()
 sword_img = pygame.transform.scale(sword_img, (50,50))
-victory_img = pygame.image.load('Images/Icon/Victory.png').convert_alpha()
-defeat_img = pygame.image.load('Images/Icon/Defeat.png').convert_alpha()
-reset_img = pygame.image.load('Images/Icon/Reset.png').convert_alpha()
+victory_img = pygame.image.load('Images/Icon/Banners0.png').convert_alpha()
+defeat_img = pygame.image.load('Images/Icon/Banners1.png').convert_alpha()
+reset_img = pygame.image.load('Images/Icon/Banners2.png').convert_alpha()
+allocate_img = pygame.image.load('Images/Icon/Banners3.png').convert_alpha()
+stat_point_img = pygame.image.load('Images/Icon/Banners4.png').convert_alpha()
 
 #characters
 ##hero
 Character.Random_Stats_Hero(random_stat_list)
 #(x, y, name, max_hp, max_mp, level, experience, strength, intelligence, defense, luck, evasion, accuracy, shield, health_potion, gold, speed, hp_regen, mp_regen)
-hero = Character.Hero(200, 265, 'Hero', 40, 20, 1, 0, 0, random_stat_list[0], random_stat_list[1], 2, random_stat_list[2], random_stat_list[3], random_stat_list[4], 0, 2, 2, 1500, 6, 1, 1)
+hero = Character.Hero(200, 265, 'Hero', 40, 20, 1, 0, 0, random_stat_list[0], random_stat_list[1], 2, random_stat_list[2], random_stat_list[3], random_stat_list[4], 0, 2, 2, 500, 5, 1, 1)
 ##slime
 #(x, y, name, max_hp, max_mp, level, experience, strength, intelligence, defense, luck, evasion, accuracy, shield, health_potion, gold, speed, hp_regen, mp_regen)
 Character.Random_Stats_Monsters(random_stat_list_monsters)
-slime0 = Character.Slime(530, 350, 'Slime', 10, 10, 1, 3, random_stat_list_monsters[0], random_stat_list_monsters[1], 2, random_stat_list_monsters[2], random_stat_list_monsters[3], random_stat_list_monsters[4], 0, 1, 20, 3 + random.randint(0,1), 1, 1)
-slime1 = Character.Slime(650, 350, 'Slime', 10, 10, 1, 3, random_stat_list_monsters[0], random_stat_list_monsters[1], 2, random_stat_list_monsters[2], random_stat_list_monsters[3], random_stat_list_monsters[4], 0, 1, 20, 3 + random.randint(0,1), 1, 1)
+slime0 = Character.Slime(530, 350, 'Slime', 10, 10, 1, 3, random_stat_list_monsters[0], random_stat_list_monsters[1], 2, random_stat_list_monsters[2], random_stat_list_monsters[3], random_stat_list_monsters[4], 0, 1, 50, 3 + random.randint(0,1), 1, 1)
+slime1 = Character.Slime(650, 350, 'Slime', 10, 10, 1, 3, random_stat_list_monsters[0], random_stat_list_monsters[1], 2, random_stat_list_monsters[2], random_stat_list_monsters[3], random_stat_list_monsters[4], 0, 1, 50, 3 + random.randint(0,1), 1, 1)
 slime_list = []
 slime_list = []
 slime_list.append(slime0)
 slime_list.append(slime1)
 ##zombie
-zombie0 = Character.Zombie(530, 265, 'Zombie', 15, 10, 1, 6, random_stat_list_monsters[0] + random.randint(2,3), random_stat_list_monsters[1] + 1, 2, random_stat_list_monsters[2] + 1, random_stat_list_monsters[3] + 1, random_stat_list_monsters[4] + 1, 0, 1, 30, 2 + random.randint(0,1), 1, 1)
-zombie1 = Character.Zombie(650, 265, 'Zombie', 15, 10, 1, 6, random_stat_list_monsters[0] + random.randint(2,3), random_stat_list_monsters[1] + 1, 2, random_stat_list_monsters[2] + 1, random_stat_list_monsters[3] + 1, random_stat_list_monsters[4] + 1, 0, 1, 30, 2 + random.randint(0,1), 1, 1)
+zombie0 = Character.Zombie(530, 265, 'Zombie', 15, 10, 1, 6, random_stat_list_monsters[0] + random.randint(2,3), random_stat_list_monsters[1] + 1, 2, random_stat_list_monsters[2] + 1, random_stat_list_monsters[3] + 1, random_stat_list_monsters[4] + 1, 0, 1, 80, 2 + random.randint(0,1), 1, 1)
+zombie1 = Character.Zombie(650, 265, 'Zombie', 15, 10, 1, 6, random_stat_list_monsters[0] + random.randint(2,3), random_stat_list_monsters[1] + 1, 2, random_stat_list_monsters[2] + 1, random_stat_list_monsters[3] + 1, random_stat_list_monsters[4] + 1, 0, 1, 80, 2 + random.randint(0,1), 1, 1)
 zombie_list = []
 zombie_list.append(zombie0)
 zombie_list.append(zombie1)
 ##zombie boss
-zombie_boss0 = Character.Zombie_Boss(530, 265, 'Zombie Boss', 50, 10, 1, 25, random_stat_list_monsters[0] + random.randint(15,20), random_stat_list_monsters[1] + 10, 2, random_stat_list_monsters[2] + 10, random_stat_list_monsters[3] + 10, random_stat_list_monsters[4] + 10, 0, 1, 200, 1 + random.randint(0,1), 1, 1)
+zombie_boss0 = Character.Zombie_Boss(530, 265, 'Zombie Boss', 50, 10, 1, 25, random_stat_list_monsters[0] + random.randint(15,20), random_stat_list_monsters[1] + 10, 2, random_stat_list_monsters[2] + 10, random_stat_list_monsters[3] + 10, random_stat_list_monsters[4] + 10, 0, 1, 200, 2 + random.randint(0,1), 1, 1)
 zombie_boss_list = []
 zombie_boss_list.append(zombie_boss0)
 ###append all monsters into list
@@ -125,7 +127,7 @@ monster_shield_list.append(zombie_shield_list)
 monster_shield_list.append(zombie_boss_shield_list)
 
 #button
-restart_button = Bars.Button(screen, 345, 120, reset_img, 120, 30)
+restart_button = Bars.Button(screen, (screen_width / 2) - 62.5 , 120, reset_img, 120, 30)
 
 def start_spawn():
 	for count, monster in enumerate(monster_list[monster_index]):	
@@ -177,11 +179,18 @@ fireball_turn_counter = 0
 turn_counter = 0
 speed_counter = 0
 
-hero_turn = 0
-hero_turn_threshold = 500
-monster0_turn = 0
-monster1_turn = 0
-monster_turn_treshold = 500
+hero_turn_amount = 0
+hero_turn_amount_threshold = 1000
+hero_stamina_amount = 0
+hero_stamina_recover_amount = 0.5
+hero_stamina_amount_threshold = 250
+over_usage_amount = 0
+over_usage_amount_max = 250
+boost = False
+
+monster0_turn_amount = 0
+monster1_turn_amount = 0
+monster_turn_amount_threshold = 1000
 
 battle_over = False
 
@@ -256,167 +265,13 @@ while run:
 		else:
 			total_turns = 4
 		#---------------------------#
-		
-		class Speed_Bar():
-			def __init__(self, screen, turn, max_bar, x, y):
-				self.x = x
-				self.y = y
-				self.turn = turn
-				self.max_bar = max_bar
-
-			def draw(self):
-				ratio = self.turn / self.max_bar
-				pygame.draw.rect(screen, red, (self.x, self.y, 100, 10))
-				pygame.draw.rect(screen, yellow, (self.x, self.y, 100 * ratio, 10))					
-
-		#hero speed portion
-		hero_speed_bar = Speed_Bar(screen, hero_turn, hero_turn_threshold, 125, screen_height - bottom_panel)
-		hero_speed_bar.draw()
-
-		if hero.alive == True:
-			if len(monster_list[monster_index]) == 1:
-				if monster0_turn < monster_turn_treshold:
-					if hero_turn < hero_turn_threshold:
-						hero_turn += hero.speed
-					if hero_turn > hero_turn_threshold:
-						hero_turn = hero_turn_threshold
-						if 8 in inventory:
-							hero.hp += hero.hp_regen + hero.mp_regen
-							heal_text = Character.Damage_Text((hero.hitbox.x + hero.hitbox.width / 2), hero.hitbox.y - 60, str(hero.hp_regen + hero.mp_regen), green)
-						else:			
-							hero.hp += hero.hp_regen	
-							heal_text = Character.Damage_Text((hero.hitbox.x + hero.hitbox.width / 2), hero.hitbox.y - 60, str(hero.hp_regen), green)									
-						damage_text_group.add(heal_text)
-						if hero.hp > hero.max_hp:
-							hero.hp = hero.max_hp	
-
-			else:
-				if monster_list[monster_index][0].alive == False:
-					if monster1_turn < monster_turn_treshold:
-						if hero_turn < hero_turn_threshold:
-							hero_turn += hero.speed
-						if hero_turn > hero_turn_threshold:
-							hero_turn = hero_turn_threshold	
-							if 8 in inventory:
-								hero.hp += hero.hp_regen + hero.mp_regen
-								heal_text = Character.Damage_Text((hero.hitbox.x + hero.hitbox.width / 2), hero.hitbox.y - 60, str(hero.hp_regen + hero.mp_regen), green)
-							else:			
-								hero.hp += hero.hp_regen	
-								heal_text = Character.Damage_Text((hero.hitbox.x + hero.hitbox.width / 2), hero.hitbox.y - 60, str(hero.hp_regen), green)									
-							damage_text_group.add(heal_text)
-							if hero.hp > hero.max_hp:
-								hero.hp = hero.max_hp						
-
-				elif monster_list[monster_index][1].alive == False: 			
-					if monster0_turn < monster_turn_treshold:
-						if hero_turn < hero_turn_threshold:
-							hero_turn += hero.speed
-						if hero_turn > hero_turn_threshold:
-							hero_turn = hero_turn_threshold	
-							if 8 in inventory:
-								hero.hp += hero.hp_regen + hero.mp_regen
-								heal_text = Character.Damage_Text((hero.hitbox.x + hero.hitbox.width / 2), hero.hitbox.y - 60, str(hero.hp_regen + hero.mp_regen), green)
-							else:			
-								hero.hp += hero.hp_regen	
-								heal_text = Character.Damage_Text((hero.hitbox.x + hero.hitbox.width / 2), hero.hitbox.y - 60, str(hero.hp_regen), green)									
-							damage_text_group.add(heal_text)
-							if hero.hp > hero.max_hp:
-								hero.hp = hero.max_hp	
-
-				else:
-					if monster0_turn < monster_turn_treshold and monster1_turn < monster_turn_treshold:
-						if hero_turn < hero_turn_threshold:
-							hero_turn += hero.speed
-						if hero_turn > hero_turn_threshold:
-							hero_turn = hero_turn_threshold					
-							if 8 in inventory:
-								hero.hp += hero.hp_regen + hero.mp_regen
-								heal_text = Character.Damage_Text((hero.hitbox.x + hero.hitbox.width / 2), hero.hitbox.y - 60, str(hero.hp_regen + hero.mp_regen), green)
-							else:			
-								hero.hp += hero.hp_regen	
-								heal_text = Character.Damage_Text((hero.hitbox.x + hero.hitbox.width / 2), hero.hitbox.y - 60, str(hero.hp_regen), green)									
-							damage_text_group.add(heal_text)
-							if hero.hp > hero.max_hp:
-								hero.hp = hero.max_hp	
-
-		#monster speed portion
-		if len(monster_list[monster_index]) == 1:
-			monster0_speed_bar = Speed_Bar(screen, monster0_turn, monster_turn_treshold, 700 - 250 + 50, screen_height - bottom_panel)
-			monster0_speed_bar.draw()					
-		else:
-			monster0_speed_bar = Speed_Bar(screen, monster0_turn, monster_turn_treshold, 700 - 250 + 25, screen_height - bottom_panel)
-			monster1_speed_bar = Speed_Bar(screen, monster1_turn, monster_turn_treshold, 700 - 125 + 25, screen_height - bottom_panel)
-			monster0_speed_bar.draw()
-			monster1_speed_bar.draw()	
-
-		if len(monster_list[monster_index]) == 1:
-			#single monster
-			if hero_turn < hero_turn_threshold:
-				if monster0_turn < monster_turn_treshold:
-					monster0_turn += monster_list[monster_index][0].speed
-				if monster0_turn > monster_turn_treshold:
-					monster0_turn = monster_turn_treshold
-					monster_list[monster_index][0].hp += monster_list[monster_index][0].hp_regen
-					heal_text = Character.Damage_Text((monster_list[monster_index][0].hitbox.x + monster_list[monster_index][0].hitbox.width / 2), monster_list[monster_index][0].hitbox.y - 60, str(monster_list[monster_index][0].hp_regen), green)
-					damage_text_group.add(heal_text)
-					if monster_list[monster_index][0].hp > monster_list[monster_index][0].max_hp:
-						monster_list[monster_index][0].hp = monster_list[monster_index][0].max_hp
-
-		else:
-			#monster 1
-			if monster_list[monster_index][0].alive == False:
-				monster0_turn = 0
-				if hero_turn < hero_turn_threshold:
-					if monster1_turn < monster_turn_treshold:
-						monster1_turn += monster_list[monster_index][1].speed
-					if monster1_turn > monster_turn_treshold:
-						monster1_turn = monster_turn_treshold
-						monster_list[monster_index][1].hp += monster_list[monster_index][1].hp_regen
-						heal_text = Character.Damage_Text((monster_list[monster_index][1].hitbox.x + monster_list[monster_index][0].hitbox.width / 2), monster_list[monster_index][1].hitbox.y - 60, str(monster_list[monster_index][1].hp_regen), green)
-						damage_text_group.add(heal_text)
-						if monster_list[monster_index][1].hp > monster_list[monster_index][1].max_hp:
-							monster_list[monster_index][1].hp = monster_list[monster_index][1].max_hp
-
-			#monster 2
-			if monster_list[monster_index][1].alive == False:
-				monster1_turn = 0
-				if hero_turn < hero_turn_threshold:
-					if monster0_turn < monster_turn_treshold:
-						monster0_turn += monster_list[monster_index][0].speed
-					if monster0_turn > monster_turn_treshold:
-						monster0_turn = monster_turn_treshold	
-						monster_list[monster_index][0].hp += monster_list[monster_index][0].hp_regen
-						heal_text = Character.Damage_Text((monster_list[monster_index][0].hitbox.x + monster_list[monster_index][0].hitbox.width / 2), monster_list[monster_index][0].hitbox.y - 60, str(monster_list[monster_index][0].hp_regen), green)
-						damage_text_group.add(heal_text)
-						if monster_list[monster_index][0].hp > monster_list[monster_index][0].max_hp:
-							monster_list[monster_index][0].hp = monster_list[monster_index][0].max_hp
-
-			else:
-				if hero_turn < hero_turn_threshold and monster1_turn < monster_turn_treshold:
-					if monster0_turn < monster_turn_treshold:
-						monster0_turn += monster_list[monster_index][0].speed
-					if monster0_turn > monster_turn_treshold:
-						monster0_turn = monster_turn_treshold					
-						monster_list[monster_index][0].hp += monster_list[monster_index][0].hp_regen
-						heal_text = Character.Damage_Text((monster_list[monster_index][0].hitbox.x + monster_list[monster_index][0].hitbox.width / 2), monster_list[monster_index][0].hitbox.y - 60, str(monster_list[monster_index][0].hp_regen), green)
-						damage_text_group.add(heal_text)
-						if monster_list[monster_index][0].hp > monster_list[monster_index][0].max_hp:
-							monster_list[monster_index][0].hp = monster_list[monster_index][0].max_hp
-
-				if hero_turn < hero_turn_threshold and monster0_turn < monster_turn_treshold:
-					if monster1_turn < monster_turn_treshold:
-						monster1_turn += monster_list[monster_index][1].speed
-					if monster1_turn > monster_turn_treshold:
-						monster1_turn = monster_turn_treshold		
-						monster_list[monster_index][1].hp += monster_list[monster_index][1].hp_regen
-						heal_text = Character.Damage_Text((monster_list[monster_index][1].hitbox.x + monster_list[monster_index][1].hitbox.width / 2), monster_list[monster_index][1].hitbox.y - 60, str(monster_list[monster_index][1].hp_regen), green)
-						damage_text_group.add(heal_text)
-						if monster_list[monster_index][1].hp > monster_list[monster_index][1].max_hp:
-							monster_list[monster_index][1].hp = monster_list[monster_index][1].max_hp
-
+		#turn system
+		if battle_over == False:
+			hero_turn_amount, hero_stamina_amount, monster0_turn_amount, monster1_turn_amount, over_usage_amount = Speed_Stamina.turn_calculations(hero_turn_amount, hero_turn_amount_threshold, hero_stamina_amount, hero_stamina_recover_amount, hero_stamina_amount_threshold, boost, monster0_turn_amount, monster1_turn_amount, monster_turn_amount_threshold, hero, monster, monster_list, monster_index, inventory, damage_text_group, over_usage_amount, over_usage_amount_max)
+		#---------------------------#
 		#enemy action
 		#single enemy
-		if hero.alive != False and hero.hp > 0 and monster0_turn >= monster_turn_treshold and len(monster_list[monster_index]) == 1:
+		if hero.alive != False and hero.hp > 0 and monster0_turn_amount >= monster_turn_amount_threshold and len(monster_list[monster_index]) == 1:
 			action_cooldown += 1
 			if action_cooldown >= action_wait_time:
 				roll_guard_chance = random.randint(0,100)
@@ -425,12 +280,12 @@ while run:
 						monster_list[monster_index][0].guard(guard_sprite_group, damage_text_group, guard_heal_active)
 					monster_list[monster_index][0].attack(hero, damage_text_group, inventory)
 					action_cooldown = 0
-					monster0_turn = 0	
+					monster0_turn_amount = 0	
 			if monster_list[monster_index][0].alive == False:
 				 monster_list[monster_index][0].death()
 
 		#two enemies
-		if hero.alive != False and hero.hp > 0 and monster0_turn >= monster_turn_treshold and len(monster_list[monster_index]) == 2 and monster_list[monster_index][0].alive == True:
+		if hero.alive != False and hero.hp > 0 and monster0_turn_amount >= monster_turn_amount_threshold and len(monster_list[monster_index]) == 2 and monster_list[monster_index][0].alive == True:
 			action_cooldown += 1
 			if action_cooldown >= action_wait_time:
 				#monster guard
@@ -447,11 +302,11 @@ while run:
 					monster_list[monster_index][0].attack(hero, damage_text_group, inventory)
 
 				action_cooldown = 0
-				monster0_turn = 0		
+				monster0_turn_amount = 0		
 			if monster_list[monster_index][0].alive == False:
 				 monster_list[monster_index][0].death()
 
-		if hero.alive != False and hero.hp > 0 and monster1_turn >= monster_turn_treshold and len(monster_list[monster_index]) == 2 and monster_list[monster_index][1].alive == True:
+		if hero.alive != False and hero.hp > 0 and monster1_turn_amount >= monster_turn_amount_threshold and len(monster_list[monster_index]) == 2 and monster_list[monster_index][1].alive == True:
 			action_cooldown += 1
 			if action_cooldown >= action_wait_time:
 				#monster guard
@@ -468,12 +323,12 @@ while run:
 					monster_list[monster_index][1].attack(hero, damage_text_group, inventory)
 
 				action_cooldown = 0
-				monster1_turn = 0			
+				monster1_turn_amount = 0			
 			if monster_list[monster_index][1].alive == False:
 				 monster_list[monster_index][1].death()
 
 		#player action
-		if game_over == 0 and hero.alive == True and hero_turn >= hero_turn_threshold:
+		if game_over == 0 and hero.alive == True and hero_turn_amount >= hero_turn_amount_threshold:
 			action_cooldown += 1
 
 			if 6 in inventory and guardheal_turn_counter == 0:
@@ -498,14 +353,14 @@ while run:
 					if target.alive == False:
 						hero.gold += target.gold
 					turn_counter += 1
-					hero_turn = 0
+					hero_turn_amount = 0
 					action_cooldown = 0
 
 				#guard
 				if click == True and action_index == 1:
 					hero.guard(guard_sprite_group, damage_text_group, guard_heal_active)
 					turn_counter += 1
-					hero_turn = 0
+					hero_turn_amount = 0
 					action_cooldown = 0
 
 				#fireball
@@ -521,7 +376,7 @@ while run:
 						if target.alive == False:
 							hero.gold += target.gold
 					turn_counter += 1
-					hero_turn = 0
+					hero_turn_amount = 0
 					action_cooldown = 0
 
 				#cleave
@@ -532,7 +387,7 @@ while run:
 						if target.alive == False:
 							hero.gold += target.gold
 					turn_counter += 1
-					hero_turn = 0
+					hero_turn_amount = 0
 					action_cooldown = 0
 
 				#zombie stab
@@ -543,7 +398,7 @@ while run:
 						if target.alive == False:
 							hero.gold += target.gold
 					turn_counter += 1
-					hero_turn = 0
+					hero_turn_amount = 0
 					action_cooldown = 0
 
 	#check alive monsters to change game over condition
@@ -562,51 +417,56 @@ while run:
 		if game_over == 1:
 			screen.blit(victory_img, ((screen_width / 2) - 120, 50))
 			battle_over = True
-			if restart_button.draw():
-				if hero.mp < hero.max_mp:
-					hero.mp += hero.mp_regen
-				#reset shield
-				hero.shield = 0
-				#reset skill counters
-				turn_counter = 0
-				guardheal_turn_counter = 0
-				ruby_turn_counter = 0
-				fireball_turn_counter = 0
-				hero_turn = 0
-				monster0_turn = 0
-				monster1_turn = 0
-				#trigger level up event	
-				if hero.level % 1 == 0 and event_1 == True:
-					fire_ball_active, guard_heal_active, cleave_active = Level_Events.lvl_up_event_1(hero, monster, monster_list, monster_index)
-					event_1 = False
-				#platformer map menu
-				monster_index, monster_encounter, game_map = Map.platformer_menu(monster_index, hero, inventory, monster_list)
-				#trigger events if move to next map
-				if monster_encounter == False:
-					random_event_index = random.randint(0,1)
-					roll_event_chance = random.randint(0,100)
-					if roll_event_chance > 0:
-						Events.game_event_list[random_event_index](hero, monster, monster_list, monster_index)
-				#reset spawns and monsters			
-				start_spawn()
-				for i in range(len(monster_list)):
-					for monster in monster_list[i]:
-						monster.level_up_monster(hero)
-				if 14 in inventory:
-					zombie_stab_active = True
-				battle_over = False
-				current_fighter = 1
-				action_cooldown = 0
-				game_over = 0
+			if hero.statpoints > 0:
+				screen.blit(allocate_img, ( (screen_width / 2) - 125, 120))
+				screen.blit(stat_point_img, ( (screen_width / 2) - 125, 180))
+			else:
+				if restart_button.draw():
+					if hero.mp < hero.max_mp:
+						hero.mp += hero.mp_regen
+					#reset shield
+					hero.shield = 0
+					#reset skill counters
+					turn_counter = 0
+					guardheal_turn_counter = 0
+					ruby_turn_counter = 0
+					fireball_turn_counter = 0
+					hero_turn_amount = 0
+					monster0_turn_amount = 0
+					monster1_turn_amount = 0
+					over_usage_amount = 0
+					#trigger level up event	
+					if hero.level % 1 == 0 and event_1 == True:
+						fire_ball_active, guard_heal_active, cleave_active = Level_Events.lvl_up_event_1(hero, monster, monster_list, monster_index)
+						event_1 = False
+					#platformer map menu
+					monster_index, monster_encounter, game_map = Map.platformer_menu(monster_index, hero, inventory, monster_list)
+					#trigger events if move to next map
+					if monster_encounter == False:
+						random_event_index = random.randint(0,1)
+						roll_event_chance = random.randint(0,100)
+						if roll_event_chance > 0:
+							Events.game_event_list[random_event_index](hero, monster, monster_list, monster_index)
+					#reset spawns and monsters			
+					start_spawn()
+					for i in range(len(monster_list)):
+						for monster in monster_list[i]:
+							monster.level_up_monster(hero)
+					if 14 in inventory:
+						zombie_stab_active = True
+					battle_over = False
+					current_fighter = 1
+					action_cooldown = 0
+					game_over = 0
 
-		if game_over == -1:
-			screen.blit(defeat_img, ((screen_width / 2) - 120, 50))
-			if restart_button.draw():
-				run = False
-				sys.exit()
+			if game_over == -1:
+				screen.blit(defeat_img, ((screen_width / 2) - 120, 50))
+				if restart_button.draw():
+					run = False
+					sys.exit()
 
 	elif monster_index == -1:
-		monster_index, monster_encounter, game_map = Map.platformer_menu(monster_index, hero, inventory, monster_lists)
+		monster_index, monster_encounter, game_map = Map.platformer_menu(monster_index, hero, inventory, monster_list)
 		if monster_encounter == False:
 			random_event_index = random.randint(0,1)
 			roll_event_chance = random.randint(0,100)
@@ -628,23 +488,13 @@ while run:
 			click = True
 		if event.type == pygame.MOUSEBUTTONUP:
 			click = False
+		if event.type == pygame.KEYUP:
+			if event.key == pygame.K_e:
+				boost = False			
 		if event.type == pygame.KEYDOWN:
-				#stats
-			if event.key == pygame.K_KP1:
-				if hero.statpoints > 0:
-					hero.str_up_button()
-			if event.key == pygame.K_KP2:
-				if hero.statpoints > 0:
-					hero.int_up_button()
-			if event.key == pygame.K_KP3:
-				if hero.statpoints > 0:				
-					hero.luc_up_button()
-			if event.key == pygame.K_KP4:
-				if hero.statpoints > 0:
-					hero.acc_up_button()
-			if event.key == pygame.K_KP5:
-				if hero.statpoints > 0:				
-					hero.eva_up_button()
+				#stamina
+			if event.key == pygame.K_e and hero_turn_amount <= hero_turn_amount_threshold:
+				boost = True
 				#skills
 			if event.key == pygame.K_1:
 				action_index = 0
@@ -665,4 +515,4 @@ while run:
 
 pygame.quit()
 
-#print
+#stamina bar concept

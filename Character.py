@@ -424,10 +424,10 @@ class Hero(Character):
 				if roll_crit_chance + self.luck > 80:
 					randdamage = math.floor(abs(randdamage) * 1.5)
 
-				if randdamage + math.floor(self.strength * 0.75) - target.defense <= 0:
+				if randdamage + math.floor(self.strength) - target.defense <= 0:
 					damage = 0
 				else:
-					damage = randdamage + math.floor(self.strength * 0.75) - target.defense
+					damage = randdamage + math.floor(self.strength) - target.defense
 				if target.shield > 0:
 					if target.shield - math.floor(damage) >= 0:
 						target.shield -= math.floor(damage)
