@@ -1,17 +1,17 @@
-import pygame, sys, csv, random, math, Screen_Menus
+import pygame, sys, csv, random, math, Screen_Menus, Consumables
 
 clock = pygame.time.Clock()
 
 pygame.init()
 
-game_map = 0
+game_map = 5
 spawn_point_index = 1
 monster_encounter = False
 current_map_list = []
 current_pos_list = []
 
 #playformer loop
-def platformer_menu(monster_index, hero, inventory, monster_list):
+def platformer_menu(monster_index, hero, inventory, monster_list, left_click):
 
 	global game_map
 	global spawn_point_index
@@ -70,13 +70,13 @@ def platformer_menu(monster_index, hero, inventory, monster_list):
 			for row in data:
 				game_map_list.append(list(row))
 	if game_map == 4:
-		screen_color_tuple = (0,50,0)
+		screen_color_tuple = (0,50,0) 
 		with open('Maps/map_5.csv', 'r') as data:
 			data = csv.reader(data, delimiter = ',')
 			for row in data:
 				game_map_list.append(list(row))
 	if game_map == 5:
-		screen_color_tuple = (0,50,0)
+		screen_color_tuple = (50,70,20)
 		with open('Maps/map_6.csv', 'r') as data:
 			data = csv.reader(data, delimiter = ',')
 			for row in data:
@@ -248,12 +248,12 @@ def platformer_menu(monster_index, hero, inventory, monster_list):
 
 		#monster spawn
 		roll_spawn = random.randint(0,100)
-		if roll_spawn > 20:
+		if roll_spawn > 70:
 			spawn_list.append('slime')
 		roll_spawn = random.randint(0,100)	
-		if roll_spawn > 50 and game_map == 2:
+		if roll_spawn > 40 and game_map == 2:
 			spawn_list.append('zombie_boss')
-		if roll_spawn > 35 and game_map == 1 or 3:
+		if roll_spawn > 70 and game_map == 1 or 3:
 			spawn_list.append('zombie')
 
 		#chest spawn
@@ -486,10 +486,13 @@ def platformer_menu(monster_index, hero, inventory, monster_list):
 						player_y_momentum = -8
 				if event.key == pygame.K_s:
 					player_y_momentum = 4
-				if event.key == pygame.K_f and game_map == 5:
-					Screen_Menus.shop_menu(inventory, hero, monster_list, monster_index)	
-				if event.key == pygame.K_r:
-					Screen_Menus.options_menu(inventory, monster_list, monster_index)
+				if event.key == pygame.K_c and game_map == 5:
+					shop_rect = pygame.draw.rect(screen, (0,0,0), (screen_width / 2, (550 / 2) - 50 , 0, 0))
+					shop_distance = math.hypot(player_rect.y - shop_rect.y, player_rect.x - shop_rect.x)
+					if shop_distance < 160:
+						Screen_Menus.shop_menu(inventory, hero, monster_list, monster_index)	
+				if event.key == pygame.K_z:
+					Screen_Menus.options_menu(inventory, monster_list, monster_index, hero)
 
 			if event.type == pygame.KEYUP:
 				if event.key == pygame.K_d:
@@ -497,6 +500,7 @@ def platformer_menu(monster_index, hero, inventory, monster_list):
 				if event.key == pygame.K_a:
 					moving_left = False		
 					player_image = pygame.transform.flip(player_image, True, False)
+
 		surf = pygame.transform.scale(display, screen_dimension)
 		screen.blit(surf, (0, 0))
 		if game_map == 5:

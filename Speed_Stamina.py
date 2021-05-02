@@ -13,8 +13,36 @@ yellow = (255,255,0)
 orange = (255,165,0)
 black = (0,0,0)
 
-def turn_calculations(hero_turn_amount, hero_turn_amount_threshold, hero_stamina_amount, hero_stamina_recover_amount, hero_stamina_amount_threshold, boost, monster0_turn_amount, monster1_turn_amount, monster_turn_amount_threshold, hero, monster, monster_list, monster_index, inventory, damage_text_group, over_usage_amount, over_usage_amount_max):
-	
+def turn_calculations(hero_turn_amount, hero_turn_amount_threshold, hero_stamina_amount, boost, monster0_turn_amount, monster1_turn_amount, monster_turn_amount_threshold, hero, monster, monster_list, monster_index, inventory, damage_text_group, skill_sprite_group):
+
+	class Stamina_Images(pygame.sprite.Sprite):
+		def __init__(self, x, y):
+			pygame.sprite.Sprite.__init__(self)
+			self.animation_list = []
+			self.frame_index = 0
+			self.update_time = pygame.time.get_ticks()	
+			for i in range(2,6):
+				img = pygame.image.load(f'Images/Icon/Heal/{i}.png').convert_alpha()
+				img = pygame.transform.scale(img, (img.get_width() * 3, img.get_height() * 3))
+				self.animation_list.append(img)
+			self.image = self.animation_list[self.frame_index]
+			self.rect = self.image.get_rect()
+			self.rect.center = (x,y)
+
+		def update(self):
+			#animation cooldown in milliseconds
+			animation_cooldown = 100
+			#handle animation
+			#update image
+			self.image = self.animation_list[self.frame_index]	
+			#check if enough time has passes since last update
+			if pygame.time.get_ticks() - self.update_time > animation_cooldown:
+				self.update_time = pygame.time.get_ticks()
+				self.frame_index += 1
+			#if animation runs out reset to the start
+			if self.frame_index >= len(self.animation_list):
+				self.kill()
+
 	class Speed_Bar():
 		def __init__(self, screen, turn, max_bar, x, y):
 			self.x = x
@@ -28,26 +56,25 @@ def turn_calculations(hero_turn_amount, hero_turn_amount_threshold, hero_stamina
 			pygame.draw.rect(screen, yellow, (self.x, self.y, 100 * ratio, 10))			
 
 	class Stamina_Bar():
-		def __init__(self, screen, stamina, max_bar, x, y, over_usage_amount, over_usage_amount_max_bar):
+		def __init__(self, screen, stamina, max_bar, x, y):
 			self.x = x
 			self.y = y
 			self.stamina = stamina
 			self.max_bar = max_bar
-			self.over_usage_amount = over_usage_amount
-			self.over_usage_amount_max_bar = over_usage_amount_max_bar
 
 		def draw(self):
 			ratio = self.stamina / self.max_bar
-			over_usage_amount_ratio = self.over_usage_amount / self.over_usage_amount_max_bar
+			if hero_stamina_amount == hero.stamina_threshold:
+				color = green
+			else:
+				color = orange	
 			pygame.draw.rect(screen, red, (self.x, self.y, 100, 10))
-			pygame.draw.rect(screen, orange, (self.x, self.y, 100 * ratio, 10))	
-			pygame.draw.rect(screen, red, (self.x, self.y - 10, 100, 10))
-			pygame.draw.rect(screen, black, (self.x, self.y - 10, 100 * over_usage_amount_ratio, 10))
+			pygame.draw.rect(screen, color, (self.x, self.y, 100 * ratio, 10))	
 
 	#hero speed portion
 	hero_turn_amount_bar = Speed_Bar(screen, hero_turn_amount, hero_turn_amount_threshold, 125, screen_height - bottom_panel)
 	hero_turn_amount_bar.draw()
-	hero_stamina_amount_bar = Stamina_Bar(screen, hero_stamina_amount, hero_stamina_amount_threshold, 125, screen_height - bottom_panel - 10, over_usage_amount, over_usage_amount_max)
+	hero_stamina_amount_bar = Stamina_Bar(screen, hero_stamina_amount, hero.stamina_threshold, 125, screen_height - bottom_panel - 10)
 	hero_stamina_amount_bar.draw()
 
 	#monster speed portion
@@ -61,42 +88,19 @@ def turn_calculations(hero_turn_amount, hero_turn_amount_threshold, hero_stamina
 		monster1_speed_bar.draw()	
 
 	#hero stamina and turn
-	if boost == True and hero_turn_amount + hero_stamina_recover_amount < hero_turn_amount_threshold and hero_stamina_amount > 0:
-		if len(monster_list[monster_index]) == 1:
-			if monster0_turn_amount < monster_turn_amount_threshold:
-				hero_stamina_amount -= 5
-				hero_turn_amount += 5
-				over_usage_amount += 5
+	if boost == True and hero_turn_amount < hero_turn_amount_threshold and hero_stamina_amount == hero.stamina_threshold:
+		if monster0_turn_amount < monster_turn_amount_threshold:
+			hero_stamina_amount -= hero.stamina_threshold
+			turn_increase = hero_turn_amount_threshold - hero_turn_amount
+			hero_turn_amount += turn_increase
+			stamina_animation = Stamina_Images((hero.hitbox.x + hero.hitbox.width / 2), hero.hitbox.y + (hero.hitbox.height / 2))
+			skill_sprite_group.add(stamina_animation)
 
-		else:
-			if monster0_turn_amount < monster_turn_amount_threshold and monster1_turn_amount < monster_turn_amount_threshold:
-				hero_stamina_amount -= 5
-				hero_turn_amount += 5
-				over_usage_amount += 5	
+	if hero_stamina_amount < hero.stamina_threshold and hero_turn_amount != hero_turn_amount_threshold:
+		hero_stamina_amount += hero.stamina_recovery
 
-		if over_usage_amount > over_usage_amount_max:
-			over_usage_amount = 0
-			hero.hp -= math.floor(hero.max_hp / 4)	
-			if hero.hp < 1:
-				hero.hp = 0
-				hero.alive = False
-				hero.death()	
-
-	if hero_stamina_amount < hero_stamina_amount_threshold and boost == False:
-		if len(monster_list[monster_index]) == 1:
-			if monster0_turn_amount < monster_turn_amount_threshold and hero_turn_amount < hero_turn_amount_threshold:
-				hero_stamina_amount += hero_stamina_recover_amount
-
-		else:
-			if monster0_turn_amount < monster_turn_amount_threshold and monster1_turn_amount < monster_turn_amount_threshold and hero_turn_amount < hero_turn_amount_threshold:
-				hero_stamina_amount += hero_stamina_recover_amount
-
-		if hero_stamina_amount > hero_stamina_amount_threshold:
-			hero_stamina_amount = hero_stamina_amount_threshold
-
-	over_usage_amount -= 0.1
-	if over_usage_amount < 0:
-		over_usage_amount = 0
+	if hero_stamina_amount > hero.stamina_threshold:
+		hero_stamina_amount = hero.stamina_threshold
 
 	if hero.alive == True:
 		if len(monster_list[monster_index]) == 1:
@@ -229,4 +233,4 @@ def turn_calculations(hero_turn_amount, hero_turn_amount_threshold, hero_stamina
 					if monster_list[monster_index][1].hp > monster_list[monster_index][1].max_hp:
 						monster_list[monster_index][1].hp = monster_list[monster_index][1].max_hp
 
-	return hero_turn_amount, hero_stamina_amount, monster0_turn_amount, monster1_turn_amount, over_usage_amount
+	return hero_turn_amount, hero_stamina_amount, monster0_turn_amount, monster1_turn_amount

@@ -46,40 +46,35 @@ def draw_text_middle(text, font, text_col, x, y):
 	return choice_text
 
 def lvl_up_event_1(hero, monster, monster_list, monster_index):
-	fire_ball_active = False
 	guard_heal_active = False
 	cleave_active = False
-	click = False
+	left_click = False
 	lvl_up_event = True
 	while lvl_up_event:
 		mousex, mousey = pygame.mouse.get_pos()
 		screen.blit(level_event_1_image, (0, 0))
 		title_text = draw_text_middle('You have found inner strength. Choose your new power.', font, blue, screen_width, 75)
-		choice_1_rect, choice_1_text = draw_text_middle_and_box('Gain Fireball, INT + 3', font, blue, dimgray, screen_width, 300)
-		choice_2_rect, choice_2_text = draw_text_middle_and_box('Gain Guardheal, DEF + 3', font, blue, dimgray, screen_width, 375)
-		choice_3_rect, choice_3_text = draw_text_middle_and_box('Gain Cleave, STR + 3', font, blue, dimgray, screen_width, 450)
-		choice_list = [choice_1_rect, choice_2_rect, choice_3_rect]
+		choice_1_rect, choice_2_text = draw_text_middle_and_box('Gain Guardheal, DEF + 3', font, blue, dimgray, screen_width, 375)
+		choice_2_rect, choice_3_text = draw_text_middle_and_box('Gain Cleave, STR + 3', font, blue, dimgray, screen_width, 450)
+		choice_list = [choice_1_rect, choice_2_rect]
 		for choice in choice_list:
-			if choice.collidepoint((mousex,mousey)) and click == True:	
+			if choice.collidepoint((mousex,mousey)) and left_click == True:				
 				if choice == choice_1_rect:
-					fire_ball_active = True
-					hero.intelligence += 3					
-				if choice == choice_2_rect:
 					guard_heal_active = True
 					hero.defense += 3
-				if choice == choice_3_rect:
+				if choice == choice_2_rect:
 					cleave_active = True	
 					hero.strength += 3	
 
 				lvl_up_event = False
 
-				return fire_ball_active, guard_heal_active, cleave_active
+				return guard_heal_active, cleave_active
 
 		for event in pygame.event.get():
 			if event.type == pygame.MOUSEBUTTONDOWN:
-				click = True
+				left_click = True
 			if event.type == pygame.MOUSEBUTTONUP:
-				click = False
+				left_click = False
 			if event.type == pygame.QUIT:
 				pygame.quit()
 				sys.exit()

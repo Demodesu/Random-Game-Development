@@ -45,14 +45,7 @@ def draw_panel(hero, monster_list, monster_index, font, screen_height, bottom_pa
 	draw_text(f'GOLD: {hero.gold}', font, red, 270-60, screen_height - bottom_panel + 70)
 	draw_text(f'LVL: {hero.level}', font, red, 240, screen_height - bottom_panel + 20)
 
-	# draw_text(f'STR: {hero.strength}', font, stat_color, 320, screen_height - bottom_panel + 20 - 3)
-	# draw_text(f'INT: {hero.intelligence}', font, stat_color, 320, screen_height - bottom_panel + 40 - 3)		
-	# draw_text(f'LUC: {hero.luck}', font, stat_color, 320, screen_height - bottom_panel + 60 - 3)	
-	# draw_text(f'ACC: {hero.accuracy}', font, stat_color, 320, screen_height - bottom_panel + 80 - 3)	
-	# draw_text(f'EVA: {hero.evasion}', font, stat_color, 320, screen_height - bottom_panel + 100 - 3)
-	# draw_text(f'DEF: {hero.defense}', font, stat_color, 320, screen_height - bottom_panel + 120 - 3)
-
-	#show slime stats	
+	#show monster stats	
 	for count, i in enumerate(monster_list[monster_index]):
 		draw_text(f'{i.name} HP: {i.hp}', font, red, 550, (screen_height - bottom_panel + 20) + count * 60)	
 		draw_text(f'LVL: {i.level}', font, red, 440, (screen_height - bottom_panel + 20) + count * 60)
@@ -63,21 +56,23 @@ def draw_background(background_img):
 def stat_up(hero, monster_list, monster_index, font, screen_height, bottom_panel, screen, click, battle_over):
 	mousex, mousey = pygame.mouse.get_pos()
 	str_stat_rect, str_stat_rect = draw_text_and_rect(f'STR: {hero.strength}', font, red, gold, 320, screen_height - bottom_panel + 20 - 3)
-	int_stat_rect, int_stat_rect = draw_text_and_rect(f'INT: {hero.intelligence}', font, red, gold, 320, screen_height - bottom_panel + 40 - 3)		
-	luc_stat_rect, luc_stat_rect = draw_text_and_rect(f'LUC: {hero.luck}', font, red, gold, 320, screen_height - bottom_panel + 60 - 3)	
-	acc_stat_rect, acc_stat_rect = draw_text_and_rect(f'ACC: {hero.accuracy}', font, red, gold, 320, screen_height - bottom_panel + 80 - 3)	
-	eva_stat_rect, eva_stat_rect = draw_text_and_rect(f'EVA: {hero.evasion}', font, red, gold, 320, screen_height - bottom_panel + 100 - 3)
+	int_stat_rect, int_stat_rect = draw_text_and_rect(f'INT: {hero.intelligence}', font, red, gold, 320, screen_height - bottom_panel + 40 - 3)	
+	agi_stat_rect, agi_stat_rect = draw_text_and_rect(f'AGI: {hero.agility}', font, red, gold, 320, screen_height - bottom_panel + 60 - 3)	
+	luc_stat_rect, luc_stat_rect = draw_text_and_rect(f'LUC: {hero.luck}', font, red, gold, 320, screen_height - bottom_panel + 80 - 3)	
+	end_stat_rect, end_stat_rect = draw_text_and_rect(f'END: {hero.endurance}', font, red, gold, 320, screen_height - bottom_panel + 100 - 3)	
+
 	if battle_over == True:
 		if str_stat_rect.collidepoint((mousex,mousey)) and click == True and hero.statpoints > 0:				
 			hero.str_up_button()
+		if agi_stat_rect.collidepoint((mousex,mousey)) and click == True and hero.statpoints > 0:
+			hero.agi_up_button()
 		if int_stat_rect.collidepoint((mousex,mousey)) and click == True and hero.statpoints > 0:
 			hero.int_up_button()
 		if luc_stat_rect.collidepoint((mousex,mousey)) and click == True and hero.statpoints > 0:
 			hero.luc_up_button()
-		if acc_stat_rect.collidepoint((mousex,mousey)) and click == True and hero.statpoints > 0:
-			hero.acc_up_button()
-		if eva_stat_rect.collidepoint((mousex,mousey)) and click == True and hero.statpoints > 0:
-			hero.eva_up_button()
+		if end_stat_rect.collidepoint((mousex,mousey)) and click == True and hero.statpoints > 0:
+			hero.end_up_button()
+
 
 # def draw_stat_background(screen, screen_height, bottom_panel, blue):
 # 	s = pygame.Surface((43,20))  # the size of your rect
@@ -85,14 +80,10 @@ def stat_up(hero, monster_list, monster_index, font, screen_height, bottom_panel
 # 	s.fill(blue)           # this fills the entire surface
 # 	screen.blit(s, (180-35, screen_height - bottom_panel + 70 - 2))    # (0,0) are the top-left coordinates	
 
-def draw_current_attack(action_index, fire_ball_active, cleave_active, zombie_stab_active, inventory):
+def draw_current_attack(action_index, cleave_active, zombie_stab_active, inventory):
 	if action_index == 0:
 		screen.blit(sword_icon_img, (0,0))
-	elif action_index == 1:
-		screen.blit(guard_icon_img, (0,0))
-	elif fire_ball_active == True and action_index == 2:
-		screen.blit(fire_ball_icon_img, (0,0))
-	elif cleave_active == True and action_index == 3:
+	elif cleave_active == True and action_index == 1:
 		screen.blit(cleave_icon_img, (0,0))
-	elif zombie_stab_active == True and action_index == 4:
+	elif zombie_stab_active == True and action_index == 2:
 		screen.blit(zombie_stab_img, (0,0))
