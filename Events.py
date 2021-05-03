@@ -88,7 +88,7 @@ def game_event_1(hero, monster, monster_list, monster_index):
 				event_1 = False			
 		if sub_event_2 == True:
 			draw_text_middle('Hero is too frail, losing health but gaining strength and constitution.', font, blue, screen_width, 75 + 60)	
-			draw_text_middle('Hero loses health but gains (2-3) Max HP and (2-3) STR.', font, blue, screen_width, 75 + 90)		
+			draw_text_middle('Hero loses health, but gains (2-3) Max HP and (2-3) STR.', font, blue, screen_width, 75 + 90)		
 			if click == True:
 				event_1 = False			
 

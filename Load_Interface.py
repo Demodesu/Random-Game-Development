@@ -40,7 +40,7 @@ def draw_panel(hero, monster_list, monster_index, font, screen_height, bottom_pa
 	draw_text(f'MP: {hero.mp}', font, red, 160, screen_height - bottom_panel + 20)	
 	draw_text(f'EXP: {hero.experience}', font, red, 30, screen_height - bottom_panel + 70)
 	draw_text(f'DEF: {hero.defense}', font, red, 30, screen_height - bottom_panel + 90)
-	draw_text(f'SPD: {hero.speed}', font, red, 30, screen_height - bottom_panel + 110)
+	draw_text(f'SPD: {hero.speed} + {hero.agility / 5}', font, red, 30, screen_height - bottom_panel + 110)
 	draw_text(f'STAT: {hero.statpoints}', font, red, 180-60, screen_height - bottom_panel + 70)
 	draw_text(f'GOLD: {hero.gold}', font, red, 270-60, screen_height - bottom_panel + 70)
 	draw_text(f'LVL: {hero.level}', font, red, 240, screen_height - bottom_panel + 20)

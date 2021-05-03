@@ -97,7 +97,7 @@ def turn_calculations(hero_turn_amount, hero_turn_amount_threshold, hero_stamina
 			skill_sprite_group.add(stamina_animation)
 
 	if hero_stamina_amount < hero.stamina_threshold and hero_turn_amount != hero_turn_amount_threshold:
-		hero_stamina_amount += hero.stamina_recovery
+		hero_stamina_amount += hero.stamina_recovery 
 
 	if hero_stamina_amount > hero.stamina_threshold:
 		hero_stamina_amount = hero.stamina_threshold
@@ -106,7 +106,7 @@ def turn_calculations(hero_turn_amount, hero_turn_amount_threshold, hero_stamina
 		if len(monster_list[monster_index]) == 1:
 			if monster0_turn_amount < monster_turn_amount_threshold:
 				if hero_turn_amount < hero_turn_amount_threshold:
-					hero_turn_amount += hero.speed
+					hero_turn_amount += hero.speed + (hero.agility / 5)
 				if hero_turn_amount > hero_turn_amount_threshold:
 					hero_turn_amount = hero_turn_amount_threshold
 					if 8 in inventory:
@@ -123,7 +123,7 @@ def turn_calculations(hero_turn_amount, hero_turn_amount_threshold, hero_stamina
 			if monster_list[monster_index][0].alive == False:
 				if monster1_turn_amount < monster_turn_amount_threshold:
 					if hero_turn_amount < hero_turn_amount_threshold:
-						hero_turn_amount += hero.speed
+						hero_turn_amount += hero.speed + (hero.agility / 5)
 					if hero_turn_amount > hero_turn_amount_threshold:
 						hero_turn_amount = hero_turn_amount_threshold	
 						if 8 in inventory:
@@ -139,7 +139,7 @@ def turn_calculations(hero_turn_amount, hero_turn_amount_threshold, hero_stamina
 			elif monster_list[monster_index][1].alive == False: 			
 				if monster0_turn_amount < monster_turn_amount_threshold:
 					if hero_turn_amount < hero_turn_amount_threshold:
-						hero_turn_amount += hero.speed
+						hero_turn_amount += hero.speed + (hero.agility / 5)
 					if hero_turn_amount > hero_turn_amount_threshold:
 						hero_turn_amount = hero_turn_amount_threshold	
 						if 8 in inventory:
@@ -155,7 +155,7 @@ def turn_calculations(hero_turn_amount, hero_turn_amount_threshold, hero_stamina
 			else:
 				if monster0_turn_amount < monster_turn_amount_threshold and monster1_turn_amount < monster_turn_amount_threshold:
 					if hero_turn_amount < hero_turn_amount_threshold:
-						hero_turn_amount += hero.speed
+						hero_turn_amount += hero.speed + (hero.agility / 5)
 					if hero_turn_amount > hero_turn_amount_threshold:
 						hero_turn_amount = hero_turn_amount_threshold					
 						if 8 in inventory:
@@ -172,7 +172,7 @@ def turn_calculations(hero_turn_amount, hero_turn_amount_threshold, hero_stamina
 	if len(monster_list[monster_index]) == 1:
 		if hero_turn_amount < hero_turn_amount_threshold:
 			if monster0_turn_amount < monster_turn_amount_threshold:
-				monster0_turn_amount += monster_list[monster_index][0].speed
+				monster0_turn_amount += monster_list[monster_index][0].speed + (monster_list[monster_index][0].agility / 5)
 			if monster0_turn_amount > monster_turn_amount_threshold:
 				monster0_turn_amount = monster_turn_amount_threshold
 				monster_list[monster_index][0].hp += monster_list[monster_index][0].hp_regen
@@ -187,7 +187,7 @@ def turn_calculations(hero_turn_amount, hero_turn_amount_threshold, hero_stamina
 			monster0_turn_amount = 0
 			if hero_turn_amount < hero_turn_amount_threshold:
 				if monster1_turn_amount < monster_turn_amount_threshold:
-					monster1_turn_amount += monster_list[monster_index][1].speed
+					monster1_turn_amount += monster_list[monster_index][1].speed + (monster_list[monster_index][1].agility / 5)
 				if monster1_turn_amount > monster_turn_amount_threshold:
 					monster1_turn_amount = monster_turn_amount_threshold
 					monster_list[monster_index][1].hp += monster_list[monster_index][1].hp_regen
@@ -201,7 +201,7 @@ def turn_calculations(hero_turn_amount, hero_turn_amount_threshold, hero_stamina
 			monster1_turn_amount = 0
 			if hero_turn_amount < hero_turn_amount_threshold:
 				if monster0_turn_amount < monster_turn_amount_threshold:
-					monster0_turn_amount += monster_list[monster_index][0].speed
+					monster0_turn_amount += monster_list[monster_index][0].speed + (monster_list[monster_index][0].agility / 5)
 				if monster0_turn_amount > monster_turn_amount_threshold:
 					monster0_turn_amount = monster_turn_amount_threshold	
 					monster_list[monster_index][0].hp += monster_list[monster_index][0].hp_regen
@@ -213,7 +213,7 @@ def turn_calculations(hero_turn_amount, hero_turn_amount_threshold, hero_stamina
 		else:
 			if hero_turn_amount < hero_turn_amount_threshold and monster1_turn_amount < monster_turn_amount_threshold:
 				if monster0_turn_amount < monster_turn_amount_threshold:
-					monster0_turn_amount += monster_list[monster_index][0].speed
+					monster0_turn_amount += monster_list[monster_index][0].speed + (monster_list[monster_index][0].agility / 5)
 				if monster0_turn_amount > monster_turn_amount_threshold:
 					monster0_turn_amount = monster_turn_amount_threshold					
 					monster_list[monster_index][0].hp += monster_list[monster_index][0].hp_regen
@@ -224,7 +224,7 @@ def turn_calculations(hero_turn_amount, hero_turn_amount_threshold, hero_stamina
 
 			if hero_turn_amount < hero_turn_amount_threshold and monster0_turn_amount < monster_turn_amount_threshold:
 				if monster1_turn_amount < monster_turn_amount_threshold:
-					monster1_turn_amount += monster_list[monster_index][1].speed
+					monster1_turn_amount += monster_list[monster_index][1].speed + (monster_list[monster_index][1].agility / 5)
 				if monster1_turn_amount > monster_turn_amount_threshold:
 					monster1_turn_amount = monster_turn_amount_threshold		
 					monster_list[monster_index][1].hp += monster_list[monster_index][1].hp_regen

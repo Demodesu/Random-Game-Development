@@ -178,12 +178,12 @@ class Character():
 		self.luck += random.randint(0,1) / 4
 		self.endurance += random.randint(0,1) / 4
 		self.agility += random.randint(0,1) / 4
-		if self.level % 5 or self.agility % 4 == 0:
-			self.speed += 0.25
-		if self.endurance % 4 == 0:
+		if self.level % 5:
+			self.speed += 0.125
+		if self.endurance % 6 == 0:
 			self.hp_regen += 0.25
 			self.max_hp += 2
-		if self.strength % 4 == 0:
+		if self.strength % 6 == 0:
 			self.defense += 0.25
 		if hero.strength > (hero.luck + hero.agility + hero.intelligence + hero.endurance):
 			self.speed += 0.25
@@ -249,53 +249,64 @@ class Hero(Character):
 		else:
 			self.experiencethreshold = experiencethreshold
 		if self.experience >= self.experiencethreshold[-1]:
+
 			self.level += 1
 			nextexperience = self.experiencethreshold[-1] * 3 # or experiencethreshold[0]
 			self.experiencethreshold.append(nextexperience)
 			self.statpoints += 5
-			self.max_mp += 2.5
-			self.mp += 2.5
-			if self.level % 5 == 0:
-				self.speed += 0.25
-				self.mp_regen += 0.25
-				self.hp_regen += 0.25
+
+			self.max_mp += 2
+			self.mp += 2
+			self.mp_regen += 0.25
+			self.max_hp += 2
+			self.hp += 2
+			self.hp_regen += 0.25
+
+			self.strength += 1
+			self.intelligence += 1
+			self.luck += 1
+			self.endurance += 1
+			self.agility += 1
+
+			self.defense += 0.125
 
 	def str_up_button(self):
 		self.strength += 0.5
 		self.added_strength += 0.5
 		self.statpoints -= 1
-		if self.added_strength % 2 == 0:
+		if self.added_strength == 2:
 			self.defense += 0.25
+			self.added_strength = 0
 
 	def int_up_button(self):
 		self.intelligence += 0.5
 		self.added_intelligence += 0.5
 		self.statpoints -= 1
-		if self.added_intelligence % 2 == 0:
+		if self.added_intelligence == 2:
 			self.max_mp += 5
 			self.mp += 5
-			self.mp_regen += 1
+			self.mp_regen += 0.5
+			self.added_intelligence = 0
+
+	def end_up_button(self):
+		self.endurance += 0.5
+		self.added_endurance += 0.5
+		self.statpoints -= 1
+		if self.added_endurance == 2:
+			self.max_hp += 5
+			self.hp += 5
+			self.hp_regen += 0.5
+			self.added_endurance = 0
 
 	def luc_up_button(self):
 		self.luck += 0.5
 		self.added_luck += 0.5
 		self.statpoints -= 1	
 
-	def end_up_button(self):
-		self.endurance += 0.5
-		self.added_endurance += 0.5
-		self.statpoints -= 1
-		if self.added_endurance % 2 == 0:
-			self.max_hp += 5
-			self.hp += 5
-			self.hp_regen += 1
-
 	def agi_up_button(self):
 		self.agility += 0.5
 		self.added_agility += 0.5
 		self.statpoints -= 1
-		if self.added_agility % 2 == 0:
-			self.speed += 0.25
 
 	def drop_items(self, target, inventory, monster_list, monster_index):
 		if target.alive == False:
@@ -311,6 +322,7 @@ class Hero(Character):
 					if rollitemactive > 60:
 						inventory.append(2)
 						self.luck += 1
+						self.added_luck += 1
 				if 3 not in inventory:
 					rollitemactive = random.randint(0,100)
 					if rollitemactive > 50:
@@ -328,6 +340,7 @@ class Hero(Character):
 					if rollitemactive > 60:
 						inventory.append(1)
 						self.strength += 1
+						self.added_strength += 1
 				if 17 not in inventory:
 					rollitemactive = random.randint(0,100)
 					if rollitemactive > 50:

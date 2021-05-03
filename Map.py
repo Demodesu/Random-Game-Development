@@ -358,7 +358,7 @@ def platformer_menu(monster_index, hero, inventory, monster_list, left_click):
 			spawn_point_index = 1
 			running = False
 			while True:
-				monster_index = random.randint(0,2)
+				monster_index = random.randint(0,3)
 				if monster_index != 2:
 					break
 			monster_encounter = False
@@ -371,7 +371,7 @@ def platformer_menu(monster_index, hero, inventory, monster_list, left_click):
 			spawn_point_index = -1
 			running = False
 			while True:
-				monster_index = random.randint(0,2)
+				monster_index = random.randint(0,3)
 				if monster_index != 2:
 					break
 			monster_encounter = False
@@ -431,7 +431,11 @@ def platformer_menu(monster_index, hero, inventory, monster_list, left_click):
 			if screen_color_tuple == (0,0,0):
 				monster_collision_dictionary = {'slime': slime_rect, 'zombie': zombie_rect, 'zombie_boss': zombie_boss_rect}
 				if pygame.Rect.colliderect(player_rect, monster_collision_dictionary['slime']):
-					monster_index = 0
+					random_slime_and_zombie = random.randint(0,100)
+					if random_slime_and_zombie > 50:
+						monster_index = 3
+					else:
+						monster_index = 0
 
 					current_pos_list.append(slime_x)
 					current_pos_list.append(slime_y)	
@@ -439,7 +443,11 @@ def platformer_menu(monster_index, hero, inventory, monster_list, left_click):
 					monster_encounter = True
 					running = False
 				if pygame.Rect.colliderect(player_rect, monster_collision_dictionary['zombie']):
-					monster_index = 1
+					random_slime_and_zombie = random.randint(0,100)
+					if random_slime_and_zombie > 50:
+						monster_index = 3
+					else:
+						monster_index = 1
 
 					current_pos_list.append(zombie_x)
 					current_pos_list.append(zombie_y)	
@@ -457,11 +465,13 @@ def platformer_menu(monster_index, hero, inventory, monster_list, left_click):
 				if pygame.Rect.colliderect(player_rect, chest_rect):
 					monster_index = -1
 					hero.gold += 200 + (hero.level * 4)
-					roll_obtain_item = random.randint(0,100)
-					if roll_obtain_item > 70:
-						roll_obtain_item_index = random.randint(0,8)
-						if roll_obtain_item_index not in inventory:
-							inventory.append(roll_obtain_item_index)	
+					roll_obtain_consumable = random.randint(0,100)
+					if roll_obtain_consumable > 50:
+						roll_obtain_consumable_index = random.randint(0,1)
+						if roll_obtain_consumable_index == 0:
+							hero.fireball_charge += 1
+						else:
+							hero.lightning_charge += 1	
 
 					current_pos_list.append(chest_x)
 					current_pos_list.append(chest_y - 10)

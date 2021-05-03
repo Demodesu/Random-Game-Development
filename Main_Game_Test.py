@@ -55,31 +55,44 @@ stat_point_img = pygame.image.load('Images/Icon/Banners4.png').convert_alpha()
 ##hero
 Character.Random_Stats_Hero(random_stat_list)
 #(x, y, name, max_hp, max_mp, level, experience, statpoints, strength, intelligence, defense, luck, agility, endurance, shield, mana_potion, health_potion, gold, speed, hp_regen, mp_regen, stamina_recovery, stamina_threshold, added_strength, added_intelligence, added_agility, added_luck, added_endurance, fireball_charge, lightning_charge)
-hero = Character.Hero(200, 265, 'Hero', 40, 20, 1, 0, 0, random_stat_list[0], random_stat_list[1], 0, random_stat_list[2], random_stat_list[3], random_stat_list[4], 0, 2, 2, 1000, 5, 1, 1, 1.5, 1500, 0, 0, 0, 0, 0, 2, 2)
+hero = Character.Hero(200, 265, 'Hero', 40, 20, 1, 0, 0, random_stat_list[0], random_stat_list[1], 0, random_stat_list[2], random_stat_list[3], random_stat_list[4], 0, 2, 2, 1000, 25, 1, 1, 1.5, 2000, 0, 0, 0, 0, 0, 2, 2)
 ##slime
 #(x, y, name, max_hp, max_mp, level, experience, strength, intelligence, defense, luck, agility, endurance, shield, health_potion, gold, speed, hp_regen, mp_regen)
 Character.Random_Stats_Monsters(random_stat_list_monsters)
-slime0 = Character.Slime(530, 350, 'Slime', 10, 10, 1, 3, random_stat_list_monsters[0], random_stat_list_monsters[1], 2, random_stat_list_monsters[2], random_stat_list_monsters[3], random_stat_list_monsters[4], 0, 1, 50, 3 + random.randint(0,1), 1, 1)
-slime1 = Character.Slime(650, 350, 'Slime', 10, 10, 1, 3, random_stat_list_monsters[0], random_stat_list_monsters[1], 2, random_stat_list_monsters[2], random_stat_list_monsters[3], random_stat_list_monsters[4], 0, 1, 50, 3 + random.randint(0,1), 1, 1)
-slime_list = []
+slime0 = Character.Slime(530, 350, 'Slime', 10, 10, 1, 3, random_stat_list_monsters[0], random_stat_list_monsters[1], 2, random_stat_list_monsters[2], random_stat_list_monsters[3], random_stat_list_monsters[4], 0, 1, 50, 18 + random.randint(0,1), 1, 1)
+slime1 = Character.Slime(650, 350, 'Slime', 10, 10, 1, 3, random_stat_list_monsters[0], random_stat_list_monsters[1], 2, random_stat_list_monsters[2], random_stat_list_monsters[3], random_stat_list_monsters[4], 0, 1, 50, 18 + random.randint(0,1), 1, 1)
+
 slime_list = []
 slime_list.append(slime0)
 slime_list.append(slime1)
 ##zombie
-zombie0 = Character.Zombie(530, 265, 'Zombie', 15, 10, 1, 6, random_stat_list_monsters[0] + random.randint(2,3), random_stat_list_monsters[1] + 1, 2, random_stat_list_monsters[2] + 1, random_stat_list_monsters[3] + 1, random_stat_list_monsters[4] + 1, 0, 1, 80, 2 + random.randint(0,1), 1, 1)
-zombie1 = Character.Zombie(650, 265, 'Zombie', 15, 10, 1, 6, random_stat_list_monsters[0] + random.randint(2,3), random_stat_list_monsters[1] + 1, 2, random_stat_list_monsters[2] + 1, random_stat_list_monsters[3] + 1, random_stat_list_monsters[4] + 1, 0, 1, 80, 2 + random.randint(0,1), 1, 1)
+Character.Random_Stats_Monsters(random_stat_list_monsters)
+zombie0 = Character.Zombie(530, 265, 'Zombie', 15, 10, 1, 6, random_stat_list_monsters[0] + random.randint(2,3), random_stat_list_monsters[1] + 1, 2, random_stat_list_monsters[2] + 1, random_stat_list_monsters[3] + 1, random_stat_list_monsters[4] + 1, 0, 1, 80, 15 + random.randint(0,1), 1, 1)
+zombie1 = Character.Zombie(650, 265, 'Zombie', 15, 10, 1, 6, random_stat_list_monsters[0] + random.randint(2,3), random_stat_list_monsters[1] + 1, 2, random_stat_list_monsters[2] + 1, random_stat_list_monsters[3] + 1, random_stat_list_monsters[4] + 1, 0, 1, 80, 15 + random.randint(0,1), 1, 1)
+
 zombie_list = []
 zombie_list.append(zombie0)
 zombie_list.append(zombie1)
 ##zombie boss
-zombie_boss0 = Character.Zombie_Boss(530, 265, 'Zombie Boss', 80, 10, 1, 25, random_stat_list_monsters[0] + random.randint(15,20), random_stat_list_monsters[1] + 10, 2, random_stat_list_monsters[2] + 10, random_stat_list_monsters[3] + 10, random_stat_list_monsters[4] + 10, 0, 1, 200, 2 + random.randint(0,1), 1, 1)
+Character.Random_Stats_Monsters(random_stat_list_monsters)
+zombie_boss0 = Character.Zombie_Boss(530, 265, 'Zombie Boss', 80, 10, 1, 25, random_stat_list_monsters[0] + random.randint(15,20), random_stat_list_monsters[1] + 10, 2, random_stat_list_monsters[2] + 10, random_stat_list_monsters[3] + 10, random_stat_list_monsters[4] + 10, 0, 1, 200, 12 + random.randint(0,1), 1, 1)
+
 zombie_boss_list = []
 zombie_boss_list.append(zombie_boss0)
+##zombie and slime
+Character.Random_Stats_Monsters(random_stat_list_monsters)
+slime2 = Character.Slime(530, 350, 'Slime', 10, 10, 1, 3, random_stat_list_monsters[0], random_stat_list_monsters[1], 2, random_stat_list_monsters[2], random_stat_list_monsters[3], random_stat_list_monsters[4], 0, 1, 50, 18 + random.randint(0,1), 1, 1)
+zombie2 = Character.Zombie(650, 265, 'Zombie', 15, 10, 1, 6, random_stat_list_monsters[0] + random.randint(2,3), random_stat_list_monsters[1] + 1, 2, random_stat_list_monsters[2] + 1, random_stat_list_monsters[3] + 1, random_stat_list_monsters[4] + 1, 0, 1, 80, 15 + random.randint(0,1), 1, 1)
+
+zombie_and_slime_list = []
+zombie_and_slime_list.append(slime2)
+zombie_and_slime_list.append(zombie2)
 ###append all monsters into list
 monster_list = []
 monster_list.append(slime_list)
 monster_list.append(zombie_list)
 monster_list.append(zombie_boss_list)
+monster_list.append(zombie_and_slime_list)
 
 #bars
 ##hero
@@ -116,15 +129,28 @@ zombie_boss_health_list = []
 zombie_boss_health_list.append(zombie_boss_health_bar)
 zombie_boss_shield_list = []
 zombie_boss_shield_list.append(zombie_boss_shield_bar)
+##zombie and slime
+zombie2_health_bar = Bars.Health_Bar(550, screen_height - bottom_panel + 40, zombie2.hp, zombie2.max_hp)
+slime2_health_bar = Bars.Health_Bar(550, screen_height - bottom_panel + 100, slime2.hp, slime2.max_hp)
+zombie2_shield_bar = Bars.Shield_Bar(550, screen_height - bottom_panel + 40)
+slime2_shield_bar = Bars.Shield_Bar(550, screen_height - bottom_panel + 100)
+zombie_and_slime_health_list = []
+zombie_and_slime_health_list.append(zombie2_health_bar)
+zombie_and_slime_health_list.append(slime2_health_bar)
+zombie_and_slime_shield_list = []
+zombie_and_slime_shield_list.append(zombie2_shield_bar)
+zombie_and_slime_shield_list.append(slime2_shield_bar)
 ###append all monster's health bar into list
 monster_health_list = []
 monster_health_list.append(slime_health_list)
 monster_health_list.append(zombie_health_list)
 monster_health_list.append(zombie_boss_health_list)
+monster_health_list.append(zombie_and_slime_health_list)
 monster_shield_list = []
 monster_shield_list.append(slime_shield_list)
 monster_shield_list.append(zombie_shield_list)
 monster_shield_list.append(zombie_boss_shield_list)
+monster_shield_list.append(zombie_and_slime_shield_list)
 
 #button
 restart_button = Bars.Button(screen, (screen_width / 2) - 125 , 120, reset_img, 250, 50)
@@ -150,7 +176,7 @@ def collide():
 			screen.blit(font.render('AGI:' + str(monster.agility), True, blue), (mousex - 100, mousey + 40))
 			screen.blit(font.render('END:' + str(monster.endurance), True, blue), (mousex - 100, mousey + 60))
 			screen.blit(font.render('DEF:' + str(monster.defense), True, blue), (mousex - 100, mousey + 80))
-			screen.blit(font.render('SPD:' + str(monster.speed), True, blue), (mousex - 100, mousey + 100))
+			screen.blit(font.render(f'SPD: {monster.speed} + {monster.agility / 5}', True, blue), (mousex - 100, mousey + 100))
 			#hide the mouse
 			pygame.mouse.set_visible(False)
 			#show sword in place of mouse
@@ -176,14 +202,14 @@ shield_turn_counter = 0
 speed_counter = 0
 
 hero_turn_amount = 0
-hero_turn_amount_threshold = 1500
+hero_turn_amount_threshold = 10000
 hero_stamina_amount = 0
 turn_counter = 0
 boost = False
 
 monster0_turn_amount = 0
 monster1_turn_amount = 0
-monster_turn_amount_threshold = 1500
+monster_turn_amount_threshold = 10000
 
 battle_over = False
 
@@ -195,7 +221,7 @@ counter_time = 0
 shield_up = False
 counter_chance = True
 
-fireball_consumable_active = False
+fireball_consumable_active = True
 lightning_consumable_active = False
 
 #sprites
@@ -336,7 +362,7 @@ while run:
 				if action_cooldown >= action_wait_time:
 					roll_guard_chance = random.randint(0,100)
 					if monster_list[monster_index][0].alive != False:
-						if monster_list[monster_index][0].hp < monster_list[monster_index][0].max_hp * 0.2 or roll_guard_chance > 70:
+						if roll_guard_chance > 70:
 							monster_list[monster_index][0].guard(skill_sprite_group, damage_text_group, guard_heal_active)
 						monster_list[monster_index][0].attack(hero, damage_text_group, inventory)
 
@@ -357,14 +383,14 @@ while run:
 					if action_cooldown >= action_wait_time:
 
 						#monster skills
-						if monster_index == 0 and hero.shield > 0 and random.randint(0,100) > 30:
+						if monster_list[monster_index][0] == (slime0 or slime1 or slime2) and hero.shield > 0 and random.randint(0,100) > 30:
 							monster_list[monster_index][0].armor_corrosion(hero, damage_text_group, inventory)
-						if monster_index == 1 and random.randint(0,100) > 70:
+						if monster_list[monster_index][0] == (zombie0 or zombie1 or zombie2) and random.randint(0,100) > 70:
 							monster_list[monster_index][0].toxic_bile(hero, damage_text_group, inventory)
 						else:
 							#monster guard
 							roll_guard_chance = random.randint(0,100)
-							if monster_list[monster_index][0].hp < monster_list[monster_index][0].max_hp * 0.2 or roll_guard_chance > 50:
+							if roll_guard_chance > 50:
 								monster_list[monster_index][0].guard(skill_sprite_group, damage_text_group, guard_heal_active)
 							monster_list[monster_index][0].attack(hero, damage_text_group, inventory)
 
@@ -382,14 +408,14 @@ while run:
 					if action_cooldown >= action_wait_time:
 
 						#monster skills	
-						if monster_index == 0 and hero.shield > 0 and random.randint(0,100) > 10:
+						if monster_list[monster_index][1] == (slime0 or slime1 or slime2) and hero.shield > 0 and random.randint(0,100) > 10:
 							monster_list[monster_index][1].armor_corrosion(hero, damage_text_group, inventory)
-						if monster_index == 1 and random.randint(0,100) > 70:
+						if monster_list[monster_index][1] == (zombie0 or zombie1 or zombie2) and random.randint(0,100) > 70:
 							monster_list[monster_index][1].toxic_bile(hero, damage_text_group, inventory)
 						else:
 							#monster guard
 							roll_guard_chance = random.randint(0,100)
-							if monster_list[monster_index][1].hp < monster_list[monster_index][1].max_hp * 0.2 or roll_guard_chance > 70:
+							if roll_guard_chance > 70:
 								monster_list[monster_index][1].guard(skill_sprite_group, damage_text_group, guard_heal_active)
 							monster_list[monster_index][1].attack(hero, damage_text_group, inventory)
 
