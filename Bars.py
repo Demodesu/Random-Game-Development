@@ -11,6 +11,22 @@ green = (0,255,0)
 blue = (0,0,255)
 yellow = (255,255,0)
 
+banner_image = pygame.image.load('Images/Icon/Banners.png').convert_alpha()
+
+def draw_text_middle_and_box(text, font, text_col, rect_col, x, y, image):
+	font_size = pygame.font.Font.size(font, text)
+	x = (x / 2) - (font_size[0] / 2)
+	text_image = font.render(text, True, text_col)
+	image = pygame.transform.scale(image, (font_size[0] + 20, font_size[1] + 20))
+	choice_text = screen.blit(text_image, (x + 10, y + 10))
+	choice_image = screen.blit(image, (x, y))
+	
+	return choice_image, choice_text
+
+def draw_box(image, rect):
+	image = pygame.transform.scale(image, (rect.width, rect.height))
+	choice_image = screen.blit(image, (rect.x, rect.y))
+
 #bar
 class Bar():
 	def __init__(self, screen):
@@ -61,7 +77,8 @@ class Experience_Bar(Bar):
 			self.experiencethreshold = experiencethreshold
 		ratio = self.experience / self.experiencethreshold[-1]
 		pygame.draw.rect(screen, red, (self.x, self.y, 800, 14))
-		pygame.draw.rect(screen, yellow, (self.x, self.y, 800 * ratio, 14))
+		experience_rect = pygame.rect.Rect(self.x, self.y, 800 * ratio, 14)
+		draw_box(banner_image, experience_rect)
 
 class Shield_Bar(Bar):
 	def __init__(self, x, y):

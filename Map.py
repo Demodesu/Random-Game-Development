@@ -248,12 +248,12 @@ def platformer_menu(monster_index, hero, inventory, monster_list, left_click):
 
 		#monster spawn
 		roll_spawn = random.randint(0,100)
-		if roll_spawn > 70:
+		if roll_spawn > 85:
 			spawn_list.append('slime')
 		roll_spawn = random.randint(0,100)	
-		if roll_spawn > 40 and game_map == 2:
+		if game_map == 2:
 			spawn_list.append('zombie_boss')
-		if roll_spawn > 70 and game_map == 1 or 3:
+		if roll_spawn > 90:
 			spawn_list.append('zombie')
 
 		#chest spawn
@@ -308,7 +308,7 @@ def platformer_menu(monster_index, hero, inventory, monster_list, left_click):
 	#zombie boss
 	zombie_boss_x, zombie_boss_y = random.randint(300, 500), random.randint(0, 250)
 	#chest
-	chest_x, chest_y = random.randint(0, 800), -50
+	chest_x, chest_y = random.randint(200, 600), -50
 	#--------------------------------------------------------#	
 	turn_left = False
 	spawn_list = spawn_monster()
@@ -464,14 +464,12 @@ def platformer_menu(monster_index, hero, inventory, monster_list, left_click):
 					running = False
 				if pygame.Rect.colliderect(player_rect, chest_rect):
 					monster_index = -1
-					hero.gold += 200 + (hero.level * 4)
-					roll_obtain_consumable = random.randint(0,100)
-					if roll_obtain_consumable > 50:
-						roll_obtain_consumable_index = random.randint(0,1)
-						if roll_obtain_consumable_index == 0:
-							hero.fireball_charge += 1
-						else:
-							hero.lightning_charge += 1	
+					hero.gold += 500 + (hero.level * 2)
+					roll_obtain_consumable_index = random.randint(0,1)
+					if roll_obtain_consumable_index == 0:
+						hero.fireball_charge += 1
+					else:
+						hero.lightning_charge += 1	
 
 					current_pos_list.append(chest_x)
 					current_pos_list.append(chest_y - 10)

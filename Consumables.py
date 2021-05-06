@@ -19,6 +19,7 @@ red = (255,0,0)
 green = (0,255,0)
 blue = (0,0,255)
 yellow = (255,255,0)
+darker_orange = (254,110,0)
 
 consumable_inventory_img = pygame.image.load('Images/Background/Shop_Inventory.png').convert_alpha()
 fireball_icon_img = pygame.image.load('Images/Icon/FireBallIcon.png').convert_alpha()
@@ -40,19 +41,25 @@ def draw_text_middle_and_box_consumables(text, font, text_col, rect_col, x, y):
 
 	return choice_rect, choice_text
 
-def consumable_1(hero, action_cooldown, target, monster_list, monster_index, experiencethreshold, skill_sprite_group, damage_text_group, inventory, fireball_consumable_active, lightning_consumable_active):
+def draw_text_middle_no_box(text, font, text_col, x, y):
+	font_size = pygame.font.Font.size(font, text)
+	x = (x / 2) - (font_size[0] / 2)
+	img = font.render(text, True, text_col)
+	choice_text = screen.blit(img, (x + 5, y + 5))
+
+def consumable_1(hero, action_cooldown, target, monster_list, monster_index, experiencethreshold, skill_sprite_group, damage_text_group, inventory, fireball_consumable_active, lightning_consumable_active, skills_list):
 	if fireball_consumable_active == True:
-		hero.fireball(action_cooldown, target, monster_list, monster_index, experiencethreshold, skill_sprite_group, damage_text_group, inventory)
+		hero.fireball(action_cooldown, target, monster_list, monster_index, experiencethreshold, skill_sprite_group, damage_text_group, inventory, skills_list)
 	if lightning_consumable_active == True:
-		hero.lightning(action_cooldown, target, monster_list, monster_index, experiencethreshold, skill_sprite_group, damage_text_group, inventory)
+		hero.lightning(action_cooldown, target, monster_list, monster_index, experiencethreshold, skill_sprite_group, damage_text_group, inventory, skills_list)
 
 def consumable_panel(hero, fireball_consumable_active, lightning_consumable_active):
 	if fireball_consumable_active == True:
 		screen.blit(fireball_icon_img, (0,64))
-		draw_text_middle_and_box_consumables(f'{hero.fireball_charge}', font, red, blue, 0, 64)
+		draw_text_middle_no_box(f'{hero.fireball_charge}', font, darker_orange, 20, 64)
 	if lightning_consumable_active == True:
 		screen.blit(lightning_icon_img, (0,64))
-		draw_text_middle_and_box_consumables(f'{hero.lightning_charge}', font, red, blue, 0, 64)
+		draw_text_middle_no_box(f'{hero.lightning_charge}', font, darker_orange, 20, 64)
 
 def consumable_menu(inventory, monster_list, monster_index):	
 	left_click = False
@@ -66,11 +73,11 @@ def consumable_menu(inventory, monster_list, monster_index):
 		mousex, mousey = pygame.mouse.get_pos()
 
 		screen.blit(consumable_inventory_img, (0,0))
-		draw_text_middle(f'CONSUMABLES', font_heading, red, screen_width, 10)
+		draw_text_middle(f'CONSUMABLES', font_heading, darker_orange, screen_width, 10)
 
-		fireball_rect, fireball_text = draw_text_middle_and_box_consumables('FIREBALL', font, red, blue, screen_width, 50)
-		lightning_rect, lightning_text = draw_text_middle_and_box_consumables('LIGHTNING', font, red, blue, screen_width, 80)
-		no_consumables_rect, no_consumables_text = draw_text_middle_and_box_consumables('NONE', font, red, blue, screen_width, 110)
+		fireball_rect, fireball_text = draw_text_middle_and_box_consumables('FIREBALL', font, darker_orange, blue, screen_width, 50)
+		lightning_rect, lightning_text = draw_text_middle_and_box_consumables('LIGHTNING', font, darker_orange, blue, screen_width, 80)
+		no_consumables_rect, no_consumables_text = draw_text_middle_and_box_consumables('NONE', font, darker_orange, blue, screen_width, 110)
 		rect_list = [fireball_rect, lightning_rect, no_consumables_rect]
 		for choice in rect_list:
 			if choice.collidepoint((mousex,mousey)) and left_click == True:
