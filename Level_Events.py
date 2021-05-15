@@ -47,26 +47,62 @@ def draw_text_middle(text, font, text_col, x, y):
 
 	return choice_text
 
-def lvl_up_event_1_guard(hero, monster, monster_list, monster_index, skills_list):
+def lvl_up_event_0(hero, monster_list, monster_index, skills_list):
+	left_click = False
+	lvl_up_event = True
+	while lvl_up_event:
+		mousex, mousey = pygame.mouse.get_pos()
+		screen.blit(level_event_1_image, (0, 0))
+		title_text = draw_text_middle('To defend or fight, you decide.', font, blue, screen_width, 75)
+		choice_1_rect, choice_1_text = draw_text_middle_and_box('Gain Auto Guard Every 5 Seconds, DEF + 2', font, blue, dimgray, screen_width, 225, banner_image)
+		choice_2_rect, choice_2_text = draw_text_middle_and_box('Gain Auto Stomp Every 5 Seconds, AGI + 2', font, blue, dimgray, screen_width, 300, banner_image)
+		choice_3_rect, choice_3_text = draw_text_middle_and_box('Gain 1 Fireball End Of Combat If No Charges Are Left, INT + 2', font, blue, dimgray, screen_width, 375, banner_image)
+		choice_4_rect, choice_4_text = draw_text_middle_and_box('Gain 1 Lightning End Of Combat If No Charges Are Left, INT + 2', font, blue, dimgray, screen_width, 450, banner_image)
+		choice_list = [choice_1_rect, choice_2_rect, choice_3_rect, choice_4_rect]
+		for choice in choice_list:
+			if choice.collidepoint((mousex,mousey)) and left_click == True:				
+				if choice == choice_1_rect:
+					skills_list.append('guard')
+					hero.defense += 2
+				if choice == choice_2_rect:
+					skills_list.append('stomp')	
+					hero.agility += 2	
+				if choice == choice_3_rect:
+					skills_list.append('start_fireball')	
+					hero.intelligence += 2	
+				if choice == choice_4_rect:
+					skills_list.append('start_lightning')	
+					hero.intelligence += 2	
+
+				lvl_up_event = False
+
+		for event in pygame.event.get():
+			if event.type == pygame.MOUSEBUTTONDOWN:
+				left_click = True
+			if event.type == pygame.MOUSEBUTTONUP:
+				left_click = False
+			if event.type == pygame.QUIT:
+				pygame.quit()
+				sys.exit()
+
+		pygame.display.update()
+
+def lvl_up_event_1(hero, monster, monster_list, monster_index, skills_list, active_skills_list, all_active_skills_list):
 	left_click = False
 	lvl_up_event = True
 	while lvl_up_event:
 		mousex, mousey = pygame.mouse.get_pos()
 		screen.blit(level_event_1_image, (0, 0))
 		title_text = draw_text_middle('You have found inner strength. Choose your new power.', font, blue, screen_width, 75)
-		choice_1_rect, choice_1_text = draw_text_middle_and_box('Gain Guard Heal, DEF + 2', font, blue, dimgray, screen_width, 300, banner_image)
-		choice_2_rect, choice_2_text = draw_text_middle_and_box('Gain Cleave, STR + 2', font, blue, dimgray, screen_width, 375, banner_image)
-		choice_3_rect, choice_3_text = draw_text_middle_and_box('Gain Triple Combo, STR + 2', font, blue, dimgray, screen_width, 450, banner_image)
-		choice_list = [choice_1_rect, choice_2_rect, choice_3_rect]
+		choice_1_rect, choice_1_text = draw_text_middle_and_box('Gain Cleave, STR + 2', font, blue, dimgray, screen_width, 300, banner_image)
+		choice_2_rect, choice_2_text = draw_text_middle_and_box('Gain Triple Combo, STR + 2', font, blue, dimgray, screen_width, 375, banner_image)
+		choice_list = [choice_1_rect, choice_2_rect]
 		for choice in choice_list:
 			if choice.collidepoint((mousex,mousey)) and left_click == True:				
 				if choice == choice_1_rect:
-					skills_list.append('guard_heal')
-					hero.defense += 2
-				if choice == choice_2_rect:
 					skills_list.append('cleave')
 					hero.strength += 2	
-				if choice == choice_3_rect:
+				if choice == choice_2_rect:
 					skills_list.append('triple_combo')
 					hero.strength += 2	
 
@@ -83,7 +119,43 @@ def lvl_up_event_1_guard(hero, monster, monster_list, monster_index, skills_list
 
 		pygame.display.update()
 
-def lvl_up_event_1_stomp(hero, monster, monster_list, monster_index, skills_list):
+def lvl_up_event_2_guard(hero, monster, monster_list, monster_index, skills_list):
+	left_click = False
+	lvl_up_event = True
+	while lvl_up_event:
+		mousex, mousey = pygame.mouse.get_pos()
+		screen.blit(level_event_1_image, (0, 0))
+		title_text = draw_text_middle('You have found inner strength. Choose your new power.', font, blue, screen_width, 75)
+		choice_1_rect, choice_1_text = draw_text_middle_and_box('Gain Guard Heal, DEF + 2', font, blue, dimgray, screen_width, 300, banner_image)
+		choice_2_rect, choice_2_text = draw_text_middle_and_box('Gain Guard Slash, STR + 2', font, blue, dimgray, screen_width, 375, banner_image)
+		choice_3_rect, choice_3_text = draw_text_middle_and_box('Gain Guard Rush, Stamina Recovery + 1', font, blue, dimgray, screen_width, 450, banner_image)
+		choice_list = [choice_1_rect, choice_2_rect, choice_3_rect]
+		for choice in choice_list:
+			if choice.collidepoint((mousex,mousey)) and left_click == True:				
+				if choice == choice_1_rect:
+					skills_list.append('guard_heal')
+					hero.defense += 2
+				if choice == choice_2_rect:
+					skills_list.append('guard_slash')
+					hero.strength += 2	
+				if choice == choice_3_rect:
+					skills_list.append('guard_rush')
+					hero.stamina_recovery += 1	
+
+				lvl_up_event = False
+
+		for event in pygame.event.get():
+			if event.type == pygame.MOUSEBUTTONDOWN:
+				left_click = True
+			if event.type == pygame.MOUSEBUTTONUP:
+				left_click = False
+			if event.type == pygame.QUIT:
+				pygame.quit()
+				sys.exit()
+
+		pygame.display.update()
+
+def lvl_up_event_2_stomp(hero, monster, monster_list, monster_index, skills_list):
 	left_click = False
 	lvl_up_event = True
 	while lvl_up_event:
@@ -91,8 +163,8 @@ def lvl_up_event_1_stomp(hero, monster, monster_list, monster_index, skills_list
 		screen.blit(level_event_1_image, (0, 0))
 		title_text = draw_text_middle('You have found inner strength. Choose your new power.', font, blue, screen_width, 75)
 		choice_1_rect, choice_1_text = draw_text_middle_and_box('Gain Stomp Buff, AGI + 2', font, blue, dimgray, screen_width, 300, banner_image)
-		choice_2_rect, choice_2_text = draw_text_middle_and_box('Gain Cleave, STR + 2', font, blue, dimgray, screen_width, 375, banner_image)
-		choice_3_rect, choice_3_text = draw_text_middle_and_box('Gain Triple Combo, STR + 2', font, blue, dimgray, screen_width, 450, banner_image)
+		choice_2_rect, choice_2_text = draw_text_middle_and_box('Gain Stomp Damage, STR + 2', font, blue, dimgray, screen_width, 375, banner_image)
+		choice_3_rect, choice_3_text = draw_text_middle_and_box('Gain Stomp Rush, Stamina Recovery + 1', font, blue, dimgray, screen_width, 450, banner_image)
 		choice_list = [choice_1_rect, choice_2_rect, choice_3_rect]
 		for choice in choice_list:
 			if choice.collidepoint((mousex,mousey)) and left_click == True:				
@@ -100,11 +172,11 @@ def lvl_up_event_1_stomp(hero, monster, monster_list, monster_index, skills_list
 					skills_list.append('stomp_buff')
 					hero.agility += 2
 				if choice == choice_2_rect:
-					skills_list.append('cleave')	
+					skills_list.append('stomp_damage')	
 					hero.strength += 2	
 				if choice == choice_3_rect:
-					skills_list.append('triple_combo')
-					hero.strength += 2	
+					skills_list.append('stomp_rush')
+					hero.stamina_recovery += 1	
 					
 				lvl_up_event = False
 
@@ -119,23 +191,79 @@ def lvl_up_event_1_stomp(hero, monster, monster_list, monster_index, skills_list
 
 		pygame.display.update()
 
-def lvl_up_event_0(hero, monster_list, monster_index, skills_list):
+def lvl_up_event_2(hero, monster, monster_list, monster_index, skills_list):
 	left_click = False
 	lvl_up_event = True
 	while lvl_up_event:
 		mousex, mousey = pygame.mouse.get_pos()
 		screen.blit(level_event_1_image, (0, 0))
-		title_text = draw_text_middle('To defend or fight, you decide.', font, blue, screen_width, 75)
-		choice_1_rect, choice_1_text = draw_text_middle_and_box('Gain Guard, DEF + 2', font, blue, dimgray, screen_width, 375, banner_image)
-		choice_2_rect, choice_2_text = draw_text_middle_and_box('Gain Stomp, AGI + 2', font, blue, dimgray, screen_width, 450, banner_image)
+		if 'start_fireball' in skills_list:
+			title_text = draw_text_middle('You have found inner strength. Choose your new power.', font, blue, screen_width, 75)
+			choice_1_rect, choice_1_text = draw_text_middle_and_box('Fireball 10% Not Consumed, LUC + 2', font, blue, dimgray, screen_width, 300, banner_image)
+			choice_2_rect, choice_2_text = draw_text_middle_and_box('Fireball Deals 25% AGI As Damage, AGI + 2', font, blue, dimgray, screen_width, 375, banner_image)
+			choice_3_rect, choice_3_text = draw_text_middle_and_box('Gain 1 Lightning End Of Combat If No Charges Are Left, INT + 2', font, blue, dimgray, screen_width, 450, banner_image)
+			choice_list = [choice_1_rect, choice_2_rect, choice_3_rect]
+			for choice in choice_list:
+				if choice.collidepoint((mousex,mousey)) and left_click == True:				
+					if choice == choice_1_rect:
+						skills_list.append('fireball_unconsumed')
+						hero.luck += 2
+					if choice == choice_2_rect:
+						skills_list.append('fireball_agi_damage')	
+						hero.agility += 2	
+					if choice == choice_3_rect:
+						skills_list.append('start_lightning')
+						hero.intelligence += 2	
+						
+					lvl_up_event = False
+		else:
+			title_text = draw_text_middle('You have found inner strength. Choose your new power.', font, blue, screen_width, 75)
+			choice_1_rect, choice_1_text = draw_text_middle_and_box('Lightning 10% Not Consumed, LUC + 2', font, blue, dimgray, screen_width, 300, banner_image)
+			choice_2_rect, choice_2_text = draw_text_middle_and_box('Lightning Deals 25% AGI As Damage, AGI + 2', font, blue, dimgray, screen_width, 375, banner_image)
+			choice_3_rect, choice_3_text = draw_text_middle_and_box('Gain 1 Fireball End Of Combat If No Charges Are Left, INT + 2', font, blue, dimgray, screen_width, 450, banner_image)
+			choice_list = [choice_1_rect, choice_2_rect, choice_3_rect]
+			for choice in choice_list:
+				if choice.collidepoint((mousex,mousey)) and left_click == True:				
+					if choice == choice_1_rect:
+						skills_list.append('lightning_unconsumed')
+						hero.luck += 2
+					if choice == choice_2_rect:
+						skills_list.append('lightning_agi_damage')	
+						hero.agility += 2	
+					if choice == choice_3_rect:
+						skills_list.append('start_fireball')
+						hero.intelligence += 2	
+						
+					lvl_up_event = False		
+
+		for event in pygame.event.get():
+			if event.type == pygame.MOUSEBUTTONDOWN:
+				left_click = True
+			if event.type == pygame.MOUSEBUTTONUP:
+				left_click = False
+			if event.type == pygame.QUIT:
+				pygame.quit()
+				sys.exit()
+
+		pygame.display.update()
+
+def lvl_up_event_3_cleave(hero, monster, monster_list, monster_index, skills_list):
+	left_click = False
+	lvl_up_event = True
+	while lvl_up_event:
+		mousex, mousey = pygame.mouse.get_pos()
+		screen.blit(level_event_1_image, (0, 0))
+		title_text = draw_text_middle('You have found inner strength. Choose your new power.', font, blue, screen_width, 75)
+		choice_1_rect, choice_1_text = draw_text_middle_and_box('Gain Double Cleave, STR + 2', font, blue, dimgray, screen_width, 300, banner_image)
+		choice_2_rect, choice_2_text = draw_text_middle_and_box('Gain Cleave Bleed, AGI + 2', font, blue, dimgray, screen_width, 375, banner_image)
 		choice_list = [choice_1_rect, choice_2_rect]
 		for choice in choice_list:
 			if choice.collidepoint((mousex,mousey)) and left_click == True:				
 				if choice == choice_1_rect:
-					skills_list.append('guard')
-					hero.defense += 2
+					skills_list.append('double_cleave')
+					hero.strength += 2
 				if choice == choice_2_rect:
-					skills_list.append('stomp')	
+					skills_list.append('cleave_bleed')	
 					hero.agility += 2	
 
 				lvl_up_event = False
@@ -150,6 +278,39 @@ def lvl_up_event_0(hero, monster_list, monster_index, skills_list):
 				sys.exit()
 
 		pygame.display.update()
+
+def lvl_up_event_3_triple_combo(hero, monster, monster_list, monster_index, skills_list):
+	left_click = False
+	lvl_up_event = True
+	while lvl_up_event:
+		mousex, mousey = pygame.mouse.get_pos()
+		screen.blit(level_event_1_image, (0, 0))
+		title_text = draw_text_middle('You have found inner strength. Choose your new power.', font, blue, screen_width, 75)
+		choice_1_rect, choice_1_text = draw_text_middle_and_box('Gain Triple Head, STR + 2', font, blue, dimgray, screen_width, 300, banner_image)
+		choice_2_rect, choice_2_text = draw_text_middle_and_box('Gain Triple Mana Restore, MP Regen + 1', font, blue, dimgray, screen_width, 375, banner_image)
+		choice_list = [choice_1_rect, choice_2_rect]
+		for choice in choice_list:
+			if choice.collidepoint((mousex,mousey)) and left_click == True:				
+				if choice == choice_1_rect:
+					skills_list.append('triple_head')
+					hero.strength += 2
+				if choice == choice_2_rect:
+					skills_list.append('triple_mana_restore')	
+					hero.mp_regen += 1	
+					
+				lvl_up_event = False
+
+		for event in pygame.event.get():
+			if event.type == pygame.MOUSEBUTTONDOWN:
+				left_click = True
+			if event.type == pygame.MOUSEBUTTONUP:
+				left_click = False
+			if event.type == pygame.QUIT:
+				pygame.quit()
+				sys.exit()
+
+		pygame.display.update()
+
 
 
 

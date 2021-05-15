@@ -22,8 +22,10 @@ yellow = (255,255,0)
 darker_orange = (254,110,0)
 
 consumable_inventory_img = pygame.image.load('Images/Background/Shop_Inventory.png').convert_alpha()
-fireball_icon_img = pygame.image.load('Images/Icon/FireBallIcon.png').convert_alpha()
-lightning_icon_img = pygame.image.load('Images/Icon/LightningIcon.png').convert_alpha()
+fireball_icon_img = pygame.image.load('Images/Icon/SkillDisplayIcon/FireBallIcon.png').convert_alpha()
+fireball_icon_img = pygame.transform.scale(fireball_icon_img,(44,44))
+lightning_icon_img = pygame.image.load('Images/Icon/SkillDisplayIcon/LightningIcon.png').convert_alpha()
+lightning_icon_img = pygame.transform.scale(lightning_icon_img,(44,44))
 
 def draw_text_middle(text, font, text_col, x, y):
 	font_size = pygame.font.Font.size(font, text)
@@ -47,18 +49,31 @@ def draw_text_middle_no_box(text, font, text_col, x, y):
 	img = font.render(text, True, text_col)
 	choice_text = screen.blit(img, (x + 5, y + 5))
 
-def consumable_1(hero, action_cooldown, target, monster_list, monster_index, experiencethreshold, skill_sprite_group, damage_text_group, inventory, fireball_consumable_active, lightning_consumable_active, skills_list):
-	if fireball_consumable_active == True:
-		hero.fireball(action_cooldown, target, monster_list, monster_index, experiencethreshold, skill_sprite_group, damage_text_group, inventory, skills_list)
-	if lightning_consumable_active == True:
-		hero.lightning(action_cooldown, target, monster_list, monster_index, experiencethreshold, skill_sprite_group, damage_text_group, inventory, skills_list)
+def consumable_1(hero, target, monster_list, monster_index, experiencethreshold, skill_sprite_group, damage_text_group, inventory, fireball_consumable_active, lightning_consumable_active, skills_list):
+	if hero.fireball_charge != 0 and fireball_consumable_active == True:
+		if 'fireball_unconsumed' in skills_list:
+			fireball_unconsumed = random.randint(0,100)
+			if fireball_unconsumed < 90:
+				hero.fireball_charge -= 1
+		else:
+			hero.fireball_charge -= 1
+		hero.fireball(target, monster_list, monster_index, experiencethreshold, skill_sprite_group, damage_text_group, inventory, skills_list)
+
+	if hero.lightning_charge != 0 and lightning_consumable_active == True:
+		if 'lightning_unconsumed' in skills_list:
+			lightning_unconsumed = random.randint(0,100)
+			if lightning_unconsumed < 90:
+				hero.lightning_charge -= 1
+		else:
+			hero.lightning_charge -= 1
+		hero.lightning(target, monster_list, monster_index, experiencethreshold, skill_sprite_group, damage_text_group, inventory, skills_list)
 
 def consumable_panel(hero, fireball_consumable_active, lightning_consumable_active):
 	if fireball_consumable_active == True:
-		screen.blit(fireball_icon_img, (0,64))
+		screen.blit(fireball_icon_img, (0,44))
 		draw_text_middle_no_box(f'{hero.fireball_charge}', font, darker_orange, 20, 64)
 	if lightning_consumable_active == True:
-		screen.blit(lightning_icon_img, (0,64))
+		screen.blit(lightning_icon_img, (0,44))
 		draw_text_middle_no_box(f'{hero.lightning_charge}', font, darker_orange, 20, 64)
 
 def consumable_menu(inventory, monster_list, monster_index):	

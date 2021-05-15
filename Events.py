@@ -145,8 +145,17 @@ def game_event_3(hero, monster, monster_list, monster_index):
 		for event in pygame.event.get():
 			if event.type == pygame.MOUSEBUTTONDOWN:
 				click = True
-				hero.hp += hero.max_hp * 0.15
-				hero.mp += hero.max_mp * 0.15
+
+				if hero.max_hp - hero.hp > hero.max_hp * 0.15:
+					hero.hp += hero.max_hp * 0.15
+				else:
+					hero.hp += hero.max_hp - hero.hp
+
+				if hero.max_mp - hero.mp > hero.max_mp * 0.15:
+					hero.mp += hero.max_mp * 0.15
+				else:
+					hero.mp += hero.max_mp - hero.mp
+
 				event_3 = False
 			if event.type == pygame.MOUSEBUTTONUP:
 				click = False
