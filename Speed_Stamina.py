@@ -1,10 +1,41 @@
-import math, pygame, random, sys, csv, Load_Interface, Character, Bars, Screen_Menus, Map, Events, Level_Events
+import math, pygame, random, sys, csv, Load_Interface, Character, Bars, Screen_Menus, Map, Events, Level_Events, ctypes
 
-bottom_panel = 150
-screen_width, screen_height = 800, 400 + bottom_panel
-screen = pygame.display.set_mode((screen_width, screen_height))
-#fonts
-font = pygame.font.Font('Kyrou_7_Wide_Bold.ttf', 10)
+#-------------------------------------------------------------------------------------#
+#all screen elements
+#ratio is 16:9
+def width(width_ratio):
+	calculated = screen_width * width_ratio
+	calculated = math.ceil(calculated)
+	return calculated
+
+def height(height_ratio):
+	calculated = screen_width * height_ratio
+	calculated = math.ceil(calculated)
+	return calculated
+
+def width_position(width_ratio):
+	calculated = screen_width * width_ratio
+	calculated = math.ceil(calculated)
+	return calculated
+
+def height_position(height_ratio):
+	calculated = screen_height * height_ratio
+	calculated = math.ceil(calculated)
+	return calculated
+
+user32 = ctypes.windll.user32
+user32.SetProcessDPIAware()
+bottom_panel = math.ceil(user32.GetSystemMetrics(1) * 0.35)
+screen_width, screen_height = user32.GetSystemMetrics(0), user32.GetSystemMetrics(1)
+top_of_bottom_panel = screen_height - bottom_panel
+bottom_of_bottom_panel = screen_height * 0.8
+text_distance = width(0.012)
+screen = pygame.display.set_mode((screen_width,screen_height))
+pygame.display.set_caption('Battle')
+
+font = pygame.font.Font('Kyrou_7_Wide_Bold.ttf', width(0.008))
+font_heading = pygame.font.Font('Kyrou_7_Wide_Bold.ttf', width(0.02))
+#-------------------------------------------------------------------------------------#
 #define colors
 red = (255,0,0)
 green = (0,255,0)
@@ -57,11 +88,12 @@ def turn_calculations(boost, hero, monster, monster_list, monster_index, invento
 			pygame.draw.rect(screen, yellow, (self.x, self.y, self.hitbox_width * ratio, 10))			
 
 	class Stamina_Bar():
-		def __init__(self, screen, stamina, max_bar, x, y):
+		def __init__(self, screen, stamina, max_bar, x, y, hitbox_width):
 			self.x = x
 			self.y = y
 			self.stamina = stamina
 			self.max_bar = max_bar
+			self.hitbox_width = hitbox_width
 
 		def draw(self):
 			ratio = self.stamina / self.max_bar
@@ -69,12 +101,12 @@ def turn_calculations(boost, hero, monster, monster_list, monster_index, invento
 				color = green
 			else:
 				color = orange	
-			pygame.draw.rect(screen, red, (self.x, self.y, 100, 10))
-			pygame.draw.rect(screen, color, (self.x, self.y, 100 * ratio, 10))	
+			pygame.draw.rect(screen, red, (self.x, self.y, self.hitbox_width, 10))
+			pygame.draw.rect(screen, color, (self.x, self.y, self.hitbox_width * ratio, 10))	
 
 	#hero speed portion
-	hero_turn_amount_bar = Speed_Bar(screen, hero.turn_amount, hero.turn_threshold, hero.hitbox.x, hero.hitbox.y, hero.hitbox.width)
-	hero_stamina_amount_bar = Stamina_Bar(screen, hero.stamina_amount, hero.stamina_threshold, hero.hitbox.x, hero.hitbox.y - 10)
+	hero_turn_amount_bar = Speed_Bar(screen, hero.turn_amount, hero.turn_threshold, hero.hitbox.x, hero.hitbox.y - 10, hero.original_hitbox.width)
+	hero_stamina_amount_bar = Stamina_Bar(screen, hero.stamina_amount, hero.stamina_threshold, hero.hitbox.x, hero.hitbox.y - 20, hero.original_hitbox.width)
 	hero_turn_amount_bar.draw()
 	hero_stamina_amount_bar.draw()
 
@@ -96,81 +128,20 @@ def turn_calculations(boost, hero, monster, monster_list, monster_index, invento
 		stamina_animation = Stamina_Images((hero.hitbox.x + hero.hitbox.width / 2), hero.hitbox.y + (hero.hitbox.height / 2))
 		skill_sprite_group.add(stamina_animation)
 
-	if hero.stamina_amount < hero.stamina_threshold:
-		hero.stamina_amount += hero.stamina_recovery 
+	if hero.alive == True:
+		if hero.turn_amount < hero.turn_threshold:
+			hero.turn_amount += hero.speed + (hero.agility * 0.025)
+		if hero.turn_amount > hero.turn_threshold:
+			hero.turn_amount = hero.turn_threshold
+		if hero.stamina_amount < hero.stamina_threshold:
+			hero.stamina_amount += hero.stamina_recovery + (hero.strength * 0.1)
 		if hero.stamina_amount > hero.stamina_threshold:
 			hero.stamina_amount = hero.stamina_threshold
-
-	if hero.alive == True:
-		if len(monster_list[monster_index]) == 1:
-			if monster_list[monster_index][0].monster_turn_amount < monster_list[monster_index][0].monster_turn_threshold:
-				if hero.turn_amount < hero.turn_threshold:
-					hero.turn_amount += hero.speed + (hero.agility / 5)
-				if hero.turn_amount > hero.turn_threshold:
-					hero.turn_amount = hero.turn_threshold
-					if 8 in inventory:
-						hero.hp += hero.hp_regen + hero.mp_regen
-						heal_text = Character.Damage_Text((hero.hitbox.x + hero.hitbox.width / 2), hero.hitbox.y - 60, str(hero.hp_regen + hero.mp_regen), green)
-					else:			
-						hero.hp += hero.hp_regen	
-						heal_text = Character.Damage_Text((hero.hitbox.x + hero.hitbox.width / 2), hero.hitbox.y - 60, str(hero.hp_regen), green)									
-					damage_text_group.add(heal_text)
-					if hero.hp > hero.max_hp:
-						hero.hp = hero.max_hp	
-
-		else:
-			if monster_list[monster_index][0].alive == False:
-				if monster_list[monster_index][1].monster_turn_amount < monster_list[monster_index][1].monster_turn_threshold:
-					if hero.turn_amount < hero.turn_threshold:
-						hero.turn_amount += hero.speed + (hero.agility / 5)
-					if hero.turn_amount > hero.turn_threshold:
-						hero.turn_amount = hero.turn_threshold	
-						if 8 in inventory:
-							hero.hp += hero.hp_regen + hero.mp_regen
-							heal_text = Character.Damage_Text((hero.hitbox.x + hero.hitbox.width / 2), hero.hitbox.y - 60, str(hero.hp_regen + hero.mp_regen), green)
-						else:			
-							hero.hp += hero.hp_regen	
-							heal_text = Character.Damage_Text((hero.hitbox.x + hero.hitbox.width / 2), hero.hitbox.y - 60, str(hero.hp_regen), green)									
-						damage_text_group.add(heal_text)
-						if hero.hp > hero.max_hp:
-							hero.hp = hero.max_hp						
-
-			elif monster_list[monster_index][1].alive == False: 			
-				if monster_list[monster_index][0].monster_turn_amount < monster_list[monster_index][0].monster_turn_threshold:
-					if hero.turn_amount < hero.turn_threshold:
-						hero.turn_amount += hero.speed + (hero.agility / 5)
-					if hero.turn_amount > hero.turn_threshold:
-						hero.turn_amount = hero.turn_threshold	
-						if 8 in inventory:
-							hero.hp += hero.hp_regen + hero.mp_regen
-							heal_text = Character.Damage_Text((hero.hitbox.x + hero.hitbox.width / 2), hero.hitbox.y - 60, str(hero.hp_regen + hero.mp_regen), green)
-						else:			
-							hero.hp += hero.hp_regen	
-							heal_text = Character.Damage_Text((hero.hitbox.x + hero.hitbox.width / 2), hero.hitbox.y - 60, str(hero.hp_regen), green)									
-						damage_text_group.add(heal_text)
-						if hero.hp > hero.max_hp:
-							hero.hp = hero.max_hp	
-
-			else:
-				if monster_list[monster_index][0].monster_turn_amount < monster_list[monster_index][0].monster_turn_threshold and monster_list[monster_index][1].monster_turn_amount < monster_list[monster_index][1].monster_turn_threshold:
-					if hero.turn_amount < hero.turn_threshold:
-						hero.turn_amount += hero.speed + (hero.agility / 5)
-					if hero.turn_amount > hero.turn_threshold:
-						hero.turn_amount = hero.turn_threshold					
-						if 8 in inventory:
-							hero.hp += hero.hp_regen + hero.mp_regen
-							heal_text = Character.Damage_Text((hero.hitbox.x + hero.hitbox.width / 2), hero.hitbox.y - 60, str(hero.hp_regen + hero.mp_regen), green)
-						else:			
-							hero.hp += hero.hp_regen	
-							heal_text = Character.Damage_Text((hero.hitbox.x + hero.hitbox.width / 2), hero.hitbox.y - 60, str(hero.hp_regen), green)									
-						damage_text_group.add(heal_text)
-						if hero.hp > hero.max_hp:
-							hero.hp = hero.max_hp	
 
 	#single monster
 	if len(monster_list[monster_index]) == 1:
 		if monster_list[monster_index][0].monster_turn_amount < monster_list[monster_index][0].monster_turn_threshold:
-			monster_list[monster_index][0].monster_turn_amount += monster_list[monster_index][0].speed + (monster_list[monster_index][0].agility / 5)
+			monster_list[monster_index][0].monster_turn_amount += monster_list[monster_index][0].speed + (monster_list[monster_index][0].agility * 0.025)
 		if monster_list[monster_index][0].monster_turn_amount > monster_list[monster_index][0].monster_turn_threshold:
 			monster_list[monster_index][0].monster_turn_amount = monster_list[monster_index][0].monster_turn_threshold
 			monster_list[monster_index][0].hp += monster_list[monster_index][0].hp_regen
@@ -184,7 +155,7 @@ def turn_calculations(boost, hero, monster, monster_list, monster_index, invento
 		if monster_list[monster_index][0].alive == False:
 			monster_list[monster_index][0].monster_turn_amount = 0
 			if monster_list[monster_index][1].monster_turn_amount < monster_list[monster_index][1].monster_turn_threshold:
-				monster_list[monster_index][1].monster_turn_amount += monster_list[monster_index][1].speed + (monster_list[monster_index][1].agility / 5)
+				monster_list[monster_index][1].monster_turn_amount += monster_list[monster_index][1].speed + (monster_list[monster_index][1].agility * 0.025)
 			if monster_list[monster_index][1].monster_turn_amount > monster_list[monster_index][1].monster_turn_threshold:
 				monster_list[monster_index][1].monster_turn_amount = monster_list[monster_index][1].monster_turn_threshold
 				monster_list[monster_index][1].hp += monster_list[monster_index][1].hp_regen
@@ -197,7 +168,7 @@ def turn_calculations(boost, hero, monster, monster_list, monster_index, invento
 		if monster_list[monster_index][1].alive == False:
 			monster_list[monster_index][1].monster_turn_amount = 0
 			if monster_list[monster_index][0].monster_turn_amount < monster_list[monster_index][0].monster_turn_threshold:
-				monster_list[monster_index][0].monster_turn_amount += monster_list[monster_index][0].speed + (monster_list[monster_index][0].agility / 5)
+				monster_list[monster_index][0].monster_turn_amount += monster_list[monster_index][0].speed + (monster_list[monster_index][0].agility * 0.025)
 			if monster_list[monster_index][0].monster_turn_amount > monster_list[monster_index][0].monster_turn_threshold:
 				monster_list[monster_index][0].monster_turn_amount = monster_list[monster_index][0].monster_turn_threshold	
 				monster_list[monster_index][0].hp += monster_list[monster_index][0].hp_regen
@@ -207,24 +178,22 @@ def turn_calculations(boost, hero, monster, monster_list, monster_index, invento
 					monster_list[monster_index][0].hp = monster_list[monster_index][0].max_hp
 
 		if monster_list[monster_index][0].alive == True and monster_list[monster_index][1].alive == True:
-			if monster_list[monster_index][1].monster_turn_amount < monster_list[monster_index][1].monster_turn_threshold:
-				if monster_list[monster_index][0].monster_turn_amount < monster_list[monster_index][0].monster_turn_threshold:
-					monster_list[monster_index][0].monster_turn_amount += monster_list[monster_index][0].speed + (monster_list[monster_index][0].agility / 5)
-				if monster_list[monster_index][0].monster_turn_amount > monster_list[monster_index][0].monster_turn_threshold:
-					monster_list[monster_index][0].monster_turn_amount = monster_list[monster_index][0].monster_turn_threshold					
-					monster_list[monster_index][0].hp += monster_list[monster_index][0].hp_regen
-					heal_text = Character.Damage_Text((monster_list[monster_index][0].hitbox.x + monster_list[monster_index][0].hitbox.width / 2), monster_list[monster_index][0].hitbox.y - 60, str(monster_list[monster_index][0].hp_regen), green)
-					damage_text_group.add(heal_text)
-					if monster_list[monster_index][0].hp > monster_list[monster_index][0].max_hp:
-						monster_list[monster_index][0].hp = monster_list[monster_index][0].max_hp
-
 			if monster_list[monster_index][0].monster_turn_amount < monster_list[monster_index][0].monster_turn_threshold:
-				if monster_list[monster_index][1].monster_turn_amount < monster_list[monster_index][1].monster_turn_threshold:
-					monster_list[monster_index][1].monster_turn_amount += monster_list[monster_index][1].speed + (monster_list[monster_index][1].agility / 5)
-				if monster_list[monster_index][1].monster_turn_amount > monster_list[monster_index][1].monster_turn_threshold:
-					monster_list[monster_index][1].monster_turn_amount = monster_list[monster_index][1].monster_turn_threshold		
-					monster_list[monster_index][1].hp += monster_list[monster_index][1].hp_regen
-					heal_text = Character.Damage_Text((monster_list[monster_index][1].hitbox.x + monster_list[monster_index][1].hitbox.width / 2), monster_list[monster_index][1].hitbox.y - 60, str(monster_list[monster_index][1].hp_regen), green)
-					damage_text_group.add(heal_text)
-					if monster_list[monster_index][1].hp > monster_list[monster_index][1].max_hp:
-						monster_list[monster_index][1].hp = monster_list[monster_index][1].max_hp
+				monster_list[monster_index][0].monster_turn_amount += monster_list[monster_index][0].speed + (monster_list[monster_index][0].agility * 0.025)
+			if monster_list[monster_index][0].monster_turn_amount > monster_list[monster_index][0].monster_turn_threshold:
+				monster_list[monster_index][0].monster_turn_amount = monster_list[monster_index][0].monster_turn_threshold					
+				monster_list[monster_index][0].hp += monster_list[monster_index][0].hp_regen
+				heal_text = Character.Damage_Text((monster_list[monster_index][0].hitbox.x + monster_list[monster_index][0].hitbox.width / 2), monster_list[monster_index][0].hitbox.y - 60, str(monster_list[monster_index][0].hp_regen), green)
+				damage_text_group.add(heal_text)
+				if monster_list[monster_index][0].hp > monster_list[monster_index][0].max_hp:
+					monster_list[monster_index][0].hp = monster_list[monster_index][0].max_hp
+
+			if monster_list[monster_index][1].monster_turn_amount < monster_list[monster_index][1].monster_turn_threshold:
+				monster_list[monster_index][1].monster_turn_amount += monster_list[monster_index][1].speed + (monster_list[monster_index][1].agility * 0.025)
+			if monster_list[monster_index][1].monster_turn_amount > monster_list[monster_index][1].monster_turn_threshold:
+				monster_list[monster_index][1].monster_turn_amount = monster_list[monster_index][1].monster_turn_threshold		
+				monster_list[monster_index][1].hp += monster_list[monster_index][1].hp_regen
+				heal_text = Character.Damage_Text((monster_list[monster_index][1].hitbox.x + monster_list[monster_index][1].hitbox.width / 2), monster_list[monster_index][1].hitbox.y - 60, str(monster_list[monster_index][1].hp_regen), green)
+				damage_text_group.add(heal_text)
+				if monster_list[monster_index][1].hp > monster_list[monster_index][1].max_hp:
+					monster_list[monster_index][1].hp = monster_list[monster_index][1].max_hp

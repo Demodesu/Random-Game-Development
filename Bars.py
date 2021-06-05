@@ -1,9 +1,41 @@
-import math, pygame, random, sys
+import math, pygame, random, sys, ctypes
 
-bottom_panel = 150
-screen_width = 800
-screen_height = 400 + bottom_panel
+#-------------------------------------------------------------------------------------#
+#all screen elements
+#ratio is 16:9
+def width(width_ratio):
+	calculated = screen_width * width_ratio
+	calculated = math.ceil(calculated)
+	return calculated
+
+def height(height_ratio):
+	calculated = screen_width * height_ratio
+	calculated = math.ceil(calculated)
+	return calculated
+
+def width_position(width_ratio):
+	calculated = screen_width * width_ratio
+	calculated = math.ceil(calculated)
+	return calculated
+
+def height_position(height_ratio):
+	calculated = screen_height * height_ratio
+	calculated = math.ceil(calculated)
+	return calculated
+
+user32 = ctypes.windll.user32
+user32.SetProcessDPIAware()
+bottom_panel = math.ceil(user32.GetSystemMetrics(1) * 0.25)
+screen_width, screen_height = user32.GetSystemMetrics(0), user32.GetSystemMetrics(1)
+top_of_bottom_panel = screen_height - bottom_panel
+bottom_of_bottom_panel = screen_height * 0.8
+text_distance = width(0.012)
 screen = pygame.display.set_mode((screen_width,screen_height))
+pygame.display.set_caption('Battle')
+
+font = pygame.font.Font('Kyrou_7_Wide_Bold.ttf', width(0.008))
+font_heading = pygame.font.Font('Kyrou_7_Wide_Bold.ttf', width(0.02))
+#-------------------------------------------------------------------------------------#
 
 #define colors
 red = (255,0,0)
@@ -44,8 +76,8 @@ class Health_Bar(Bar):
 		self.hp = hp
 		self.max_hp = max_hp
 		ratio = self.hp / self.max_hp
-		pygame.draw.rect(screen, red, (self.x, self.y, 130, 20))
-		pygame.draw.rect(screen, green, (self.x, self.y, 130 * ratio, 20))	
+		pygame.draw.rect(screen, red, (self.x, self.y, width(0.3), 20))
+		pygame.draw.rect(screen, green, (self.x, self.y, width(0.3) * ratio, 20))	
 
 
 class Mana_Bar(Bar):
@@ -60,8 +92,8 @@ class Mana_Bar(Bar):
 		self.mp = mp
 		self.max_mp = max_mp
 		ratio = self.mp / self.max_mp
-		pygame.draw.rect(screen, red, (self.x, self.y, 130, 20))
-		pygame.draw.rect(screen, blue, (self.x, self.y, 130 * ratio, 20))	
+		pygame.draw.rect(screen, red, (self.x, self.y, width(0.3), 20))
+		pygame.draw.rect(screen, blue, (self.x, self.y, width(0.3) * ratio, 20))	
 		
 class Experience_Bar(Bar):
 	def __init__(self, x, y):
@@ -76,8 +108,8 @@ class Experience_Bar(Bar):
 		else:
 			self.experiencethreshold = experiencethreshold
 		ratio = self.experience / self.experiencethreshold[-1]
-		pygame.draw.rect(screen, red, (self.x, self.y, 800, 14))
-		experience_rect = pygame.rect.Rect(self.x, self.y, 800 * ratio, 14)
+		pygame.draw.rect(screen, red, (self.x, self.y, screen_width, 14))
+		experience_rect = pygame.rect.Rect(self.x, self.y, screen_width * ratio, 14)
 		draw_box(banner_image, experience_rect)
 
 class Shield_Bar(Bar):
@@ -90,7 +122,7 @@ class Shield_Bar(Bar):
 		self.shield = shield
 		self.max_hp = max_hp
 		ratio = self.shield / self.max_hp
-		pygame.draw.rect(screen, yellow, (self.x, self.y, 130 * ratio, 20))
+		pygame.draw.rect(screen, yellow, (self.x, self.y, width(0.3) * ratio, 20))
 
 class Button():
 	def __init__(self, surface, x, y, image, size_x, size_y):
